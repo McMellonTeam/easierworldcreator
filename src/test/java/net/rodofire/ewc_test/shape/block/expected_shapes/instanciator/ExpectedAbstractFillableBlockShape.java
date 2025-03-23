@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.shape.block.instanciator;
+package net.rodofire.ewc_test.shape.block.expected_shapes.instanciator;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
@@ -42,37 +42,37 @@ import org.jetbrains.annotations.NotNull;
  * </ul>
  */
 @SuppressWarnings("unused")
-public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
+public abstract class ExpectedAbstractFillableBlockShape extends ExpectedAbstractBlockShape {
     /**
      * if ==0, there will be no circle
      * if ==1f, it will be a full circle
-     * Don't need to care if {@link AbstractFillableBlockShape} is not set on CUSTOM
+     * Don't need to care if
+     *
+     * @see ExpectedAbstractFillableBlockShape is not set on CUSTOM
      **/
-    protected float customFill = 1f;
+    float customFill = 1f;
 
     /**
      * set the default filling type
      */
-    protected AbstractFillableBlockShape.Type fillingType = AbstractFillableBlockShape.Type.FULL;
-
-
+    Type fillingType = Type.FULL;
 
     /**
      * init the ShapeFilling
      *
      * @param pos the center of the spiral
      */
-    public AbstractFillableBlockShape(@NotNull BlockPos pos) {
+    public ExpectedAbstractFillableBlockShape(@NotNull BlockPos pos) {
         super(pos);
     }
 
     /**
      * init the ShapeFilling
      *
-     * @param pos     the pos of the shape (usually the center of the structure)
+     * @param pos the pos of the shape (usually the center of the structure)
      * @param rotator the object that is used to rotate the structure
      */
-    public AbstractFillableBlockShape(@NotNull BlockPos pos, Rotator rotator) {
+    public ExpectedAbstractFillableBlockShape(@NotNull BlockPos pos, Rotator rotator) {
         super(pos, rotator);
     }
 
@@ -101,12 +101,30 @@ public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
     /*----------- FillingType Related -----------*/
 
     /**
+     * method to get the filling Type
+     *
+     * @return the filling type
+     */
+    public Type getFillingType() {
+        return fillingType;
+    }
+
+    /**
      * method to change the filling Type
      *
      * @param fillingType change the fillingType
      */
-    public void setFillingType(AbstractFillableBlockShape.Type fillingType) {
+    public void setFillingType(Type fillingType) {
         this.fillingType = fillingType;
+    }
+
+    /**
+     * method to get the custom fill
+     *
+     * @return the float of the custom fill
+     */
+    public float getCustomFill() {
+        return customFill;
     }
 
     /**
@@ -123,10 +141,13 @@ public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
      * set the filling value depending on the filling type
      */
     protected void setFill() {
-        if (this.fillingType == AbstractFillableBlockShape.Type.HALF) this.customFill = 0.5f;
-        if (this.fillingType == AbstractFillableBlockShape.Type.FULL) this.customFill = 1.0f;
-
-        if (this.customFill > 1f) this.customFill = 1f;
-        if (this.customFill < 0f) this.customFill = 0f;
+        if (this.fillingType == Type.HALF) {
+            this.customFill = 0.5f;
+        }
+        if (this.fillingType == Type.FULL) {
+            this.customFill = 1.0f;
+        }
+        if (this.getCustomFill() > 1f) this.customFill = 1f;
+        if (this.getCustomFill() < 0f) this.customFill = 0f;
     }
 }

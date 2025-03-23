@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "easierworldcreator",
-  "version": "3.0.4",
+  "version": "3.0.10",
   "name": "Easier-World-Creator",
   "description": "Mod To help creating Features",
   "authors": [
@@ -31,10 +31,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.16.9",
-    "minecraft": [
-      "1.21",
-      "1.21.1"
-    ],
+    "minecraft": "1.21.1",
     "java": ">=21",
     "fabric-api": "*"
   },

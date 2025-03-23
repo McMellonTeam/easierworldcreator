@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.shape.block.instanciator;
+package net.rodofire.ewc_test.shape.block.expected_shapes.instanciator;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class to create custom shapes
@@ -43,7 +44,7 @@ import java.util.Map;
  * </ul>
  */
 @SuppressWarnings("unused")
-public abstract class AbstractBlockShape {
+public abstract class ExpectedAbstractBlockShape {
     protected long centerPos;
 
     /**
@@ -56,10 +57,6 @@ public abstract class AbstractBlockShape {
     protected Rotator rotator;
 
     protected Map<ChunkPos, LongOpenHashSet> chunkMap = new HashMap<>();
-    protected LongOpenHashSet covered = new LongOpenHashSet();
-
-    protected int lastChunkX = Integer.MAX_VALUE;
-    protected int lastChunkZ = Integer.MAX_VALUE;
 
     /**
      * instead of using always get on {@code chunkMap} which is pretty expensive in terms of performance,
@@ -73,7 +70,7 @@ public abstract class AbstractBlockShape {
      *
      * @param centerPos the center of the spiral
      */
-    public AbstractBlockShape(@NotNull BlockPos centerPos) {
+    public ExpectedAbstractBlockShape(@NotNull BlockPos centerPos) {
         this.centerPos = LongPosHelper.encodeBlockPos(centerPos);
         setCenterPos();
     }
@@ -84,7 +81,7 @@ public abstract class AbstractBlockShape {
      * @param centerPos the center BlockPos
      * @param rotator   the rotator uses to rotate the shape
      */
-    public AbstractBlockShape(BlockPos centerPos, Rotator rotator) {
+    public ExpectedAbstractBlockShape(BlockPos centerPos, Rotator rotator) {
         this.centerPos = LongPosHelper.encodeBlockPos(centerPos);
         this.rotator = rotator;
         setCenterPos();
@@ -100,15 +97,6 @@ public abstract class AbstractBlockShape {
      * @return a map of ChunkPos of blockPos for every shape
      */
     public abstract Map<ChunkPos, LongOpenHashSet> getShapeCoordinates();
-
-    /**
-     * Method to know the chunks that will be covered by the shape. This avoids generating all the structure, enhancing performance
-     *
-     * @return a set of chunkPos.
-     * For performance reasons, we use long instead of {@link ChunkPos}.
-     * <p>To convert the long into a {@link ChunkPos}, use the long in a constructor.
-     */
-    public abstract LongOpenHashSet getCoveredChunks();
 
     private void setCenterPos() {
         centerX = LongPosHelper.decodeX(centerPos);
@@ -133,22 +121,5 @@ public abstract class AbstractBlockShape {
         lastSet.getValue().add(pos);
     }
 
-    protected void shouldAddChunk(int x, int z) {
-        int chunkX = x >> 4;
-        int chunkZ = z >> 4;
-        if (lastChunkX != chunkX || lastChunkZ != chunkZ) {
-            covered.add(ChunkPos.toLong(chunkX, chunkZ));
-            lastChunkX = chunkX;
-            lastChunkZ = chunkZ;
-        }
-    }
-
-    protected void shouldAddChunkPrecomputedX(int z, boolean different, int chunkX) {
-        int chunkZ = z >> 4;
-        if (different || lastChunkZ != chunkZ) {
-            covered.add(ChunkPos.toLong(chunkX, chunkZ));
-            lastChunkZ = chunkZ;
-            lastChunkX = chunkX;
-        }
-    }
+    public abstract LongOpenHashSet getCoveredChunks();
 }

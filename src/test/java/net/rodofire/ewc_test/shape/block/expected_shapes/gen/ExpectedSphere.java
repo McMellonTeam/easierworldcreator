@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.shape.block.gen;
+package net.rodofire.ewc_test.shape.block.expected_shapes.gen;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
@@ -7,13 +7,11 @@ import net.minecraft.util.math.Direction;
 import net.rodofire.easierworldcreator.Ewc;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
-import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
-import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
 import net.rodofire.easierworldcreator.shape.block.rotations.Rotator;
-import net.rodofire.easierworldcreator.util.DirectionUtil;
 import net.rodofire.easierworldcreator.util.LongPosHelper;
+import net.rodofire.ewc_test.shape.block.expected_shapes.instanciator.ExpectedAbstractFillableBlockShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -86,11 +84,15 @@ import java.util.Set;
  * </ul>
  */
 @SuppressWarnings("unused")
-public class SphereGen extends AbstractFillableBlockShape {
+public class ExpectedSphere extends ExpectedAbstractFillableBlockShape {
     private int radiusX;
     private int radiusY;
     private int radiusZ;
 
+    @Override
+    public LongOpenHashSet getCoveredChunks() {
+        return new LongOpenHashSet();
+    }
 
     private SphereType halfSphere = SphereType.DEFAULT;
 
@@ -110,7 +112,7 @@ public class SphereGen extends AbstractFillableBlockShape {
      * @param radiusZ    the radius on the z-axis
      * @param halfSphere determines if the sphere is half or not
      */
-    public SphereGen(@NotNull BlockPos pos, Rotator rotator, int radiusX, int radiusY, int radiusZ, SphereType halfSphere) {
+    public ExpectedSphere(@NotNull BlockPos pos, Rotator rotator, int radiusX, int radiusY, int radiusZ, SphereType halfSphere) {
         super(pos, rotator);
         this.radiusX = radiusX;
         this.radiusY = radiusY;
@@ -124,11 +126,18 @@ public class SphereGen extends AbstractFillableBlockShape {
      * @param pos    the pos of the structure center
      * @param radius the radius of the sphere
      */
-    public SphereGen(@NotNull BlockPos pos, int radius) {
+    public ExpectedSphere(@NotNull BlockPos pos, int radius) {
         super(pos);
         this.radiusX = radius;
         this.radiusY = radius;
         this.radiusZ = radius;
+    }
+
+    /**
+     * Gets the direction of the half-sphere. * * @return The direction of the half-sphere.
+     */
+    public Direction getHalfSphereDirection() {
+        return direction;
     }
 
     /**
@@ -139,13 +148,25 @@ public class SphereGen extends AbstractFillableBlockShape {
     }
 
     /**
+     * Checks if it is a half sphere. * * @return The type of the half-sphere.
+     */
+    public SphereType isHalfSphere() {
+        return halfSphere;
+    }
+
+    /**
      * Sets the half-sphere type. * * @param halfSphere The half-sphere type to set.
      */
     public void setHalfSphere(SphereType halfSphere) {
         this.halfSphere = halfSphere;
-    }
+    } /*---------- Radius Related ----------*/
 
-    /*---------- Radius Related ----------*/
+    /**
+     * Gets the X radius of the sphere. * * @return The X radius.
+     */
+    public int getRadiusX() {
+        return radiusX;
+    }
 
     /**
      * Sets the X radius of the sphere. * * @param radiusX The X radius to set.
@@ -155,10 +176,24 @@ public class SphereGen extends AbstractFillableBlockShape {
     }
 
     /**
+     * Gets the Y radius of the sphere. * * @return The Y radius.
+     */
+    public int getRadiusY() {
+        return radiusY;
+    }
+
+    /**
      * Sets the Y radius of the sphere. * * @param radiusY The Y radius to set.
      */
     public void setRadiusY(int radiusY) {
         this.radiusY = radiusY;
+    }
+
+    /**
+     * Gets the Z radius of the sphere. * * @return The Z radius.
+     */
+    public int getRadiusZ() {
+        return radiusZ;
     }
 
     /**
@@ -171,7 +206,7 @@ public class SphereGen extends AbstractFillableBlockShape {
     @Override
     public Map<ChunkPos, LongOpenHashSet> getShapeCoordinates() {
         //verify if the rotations == 0 to avoid some unnecessary calculations
-        if (this.fillingType == Type.EMPTY) {
+        if (this.getFillingType() == Type.EMPTY) {
             if (this.halfSphere == SphereType.HALF) {
                 this.generateHalfEmptyEllipsoid();
             } else {
@@ -187,109 +222,32 @@ public class SphereGen extends AbstractFillableBlockShape {
         return chunkMap;
     }
 
-    @Override
-    public LongOpenHashSet getCoveredChunks() {
-        int estimatedSurface;
 
-        if (halfSphere == SphereType.HALF && DirectionUtil.isHorizontal(direction)) {
-            estimatedSurface = (int) (Math.PI * radiusZ * radiusX / 2);
+    public void generateHalfEmptyEllipsoid() {
+        if (direction == Direction.UP) {
+            generateEmptyEllipsoid(-180, 180, 0, 90);
+        } else if (direction == Direction.DOWN) {
+            generateEmptyEllipsoid(-180, 180, -90, 0);
+        } else if (direction == Direction.WEST) {
+            generateEmptyEllipsoid(0, 180, -90, 90);
+        } else if (direction == Direction.EAST) {
+            generateEmptyEllipsoid(-180, 0, -90, 90);
+        } else if (direction == Direction.NORTH) {
+            generateEmptyEllipsoid(-90, 90, -90, 90);
         } else {
-            estimatedSurface = (int) (Math.PI * radiusZ * radiusX);
+            generateEmptyEllipsoid(90, 270, -90, 90);
         }
-        covered = new LongOpenHashSet(estimatedSurface);
-
-        int minTheta = -180, minPhi = -90;
-        int maxTheta = 180, maxPhi = 90;
-
-        switch (direction) {
-            case UP:
-                minPhi = 0;
-                break;
-            case DOWN:
-                maxPhi = 0;
-                break;
-            case WEST:
-                minTheta = 0;
-                break;
-            case EAST:
-                maxTheta = 0;
-                break;
-            case NORTH:
-                minTheta = -90;
-                maxTheta = 90;
-                break;
-            case SOUTH:
-                minTheta = 90;
-                maxTheta = 270;
-                break;
-        }
-
-        getCovered(minTheta, maxTheta, minPhi, maxPhi);
-        return covered;
     }
 
-
-    private void generateHalfEmptyEllipsoid() {
-        int minTheta = -180, minPhi = -90;
-        int maxTheta = 180, maxPhi = 90;
-
-        switch (direction) {
-            case UP:
-                minPhi = 0;
-                break;
-            case DOWN:
-                maxPhi = 0;
-                break;
-            case WEST:
-                minTheta = 0;
-                break;
-            case EAST:
-                maxTheta = 0;
-                break;
-            case NORTH:
-                minTheta = -90;
-                maxTheta = 90;
-                break;
-            case SOUTH:
-                minTheta = 90;
-                maxTheta = 270;
-                break;
-        }
-        generateEmptyEllipsoid(minTheta, maxTheta, minPhi, maxPhi);
-    }
-
-    private void generateEmptyEllipsoid() {
+    public void generateEmptyEllipsoid() {
         this.generateEmptyEllipsoid(-180, 180, -90, 90);
-    }
-
-    private void generateHalfFullEllipsoid() {
-        int minX = -radiusX, minY = -radiusY, minZ = -radiusZ;
-        int maxX = radiusX, maxY = radiusY, maxZ = radiusZ;
-        switch (direction) {
-            case UP:
-                minY = 0;
-                break;
-            case DOWN:
-                maxY = 0;
-                break;
-            case WEST:
-                minX = 0;
-                break;
-            case EAST:
-                maxX = 0;
-                break;
-            case NORTH:
-                minZ = 0;
-                break;
-            case SOUTH:
-                maxZ = 0;
-                break;
-        }
-        this.generateFullEllipsoid(minX, maxX, minY, maxY, minZ, maxZ);
     }
 
     public void generateEmptyEllipsoid(int minLarge, int maxLarge, int minHeight, int maxHeight) {
         int maxLarge1 = Math.max(radiusZ, Math.max(radiusX, radiusY));
+
+        BlockPos.Mutable mutable = new BlockPos.Mutable();
+        List<BlockPos> poslist = new ArrayList<>();
         if (rotator == null) {
             for (float theta = minLarge; theta <= maxLarge; theta += (float) 45 / maxLarge1) {
 
@@ -324,6 +282,22 @@ public class SphereGen extends AbstractFillableBlockShape {
     }
 
 
+    public void generateHalfFullEllipsoid() {
+        if (direction == Direction.UP) {
+            this.generateFullEllipsoid(-radiusX, radiusX, 0, radiusY, -radiusZ, radiusZ);
+        } else if (direction == Direction.DOWN) {
+            this.generateFullEllipsoid(-radiusX, radiusX, -radiusY, 0, -radiusZ, radiusZ);
+        } else if (direction == Direction.WEST) {
+            this.generateFullEllipsoid(0, radiusX, -radiusY, radiusY, -radiusZ, radiusZ);
+        } else if (direction == Direction.EAST) {
+            this.generateFullEllipsoid(-radiusX, 0, -radiusY, radiusY, -radiusZ, radiusZ);
+        } else if (direction == Direction.NORTH) {
+            this.generateFullEllipsoid(-radiusX, radiusX, -radiusY, radiusY, -radiusZ, 0);
+        } else {
+            this.generateFullEllipsoid(-radiusX, radiusX, -radiusY, radiusY, 0, radiusZ);
+        }
+    }
+
     public void generateFullEllipsoid() {
         this.generateFullEllipsoid(-radiusX, radiusX, -radiusY, radiusY, -radiusZ, radiusZ);
     }
@@ -346,9 +320,9 @@ public class SphereGen extends AbstractFillableBlockShape {
         int largeYSquared = radiusY * radiusY;
         int largeZSquared = radiusZ * radiusZ;
 
-        float innerRadiusXSquared = (1 - this.customFill) * (1 - this.customFill) * largeXSquared;
-        float innerRadiusYSquared = (1 - this.customFill) * (1 - this.customFill) * largeYSquared;
-        float innerRadiusZSquared = (1 - this.customFill) * (1 - this.customFill) * largeZSquared;
+        float innerRadiusXSquared = (1 - this.getCustomFill()) * (1 - this.getCustomFill()) * largeXSquared;
+        float innerRadiusYSquared = (1 - this.getCustomFill()) * (1 - this.getCustomFill()) * largeYSquared;
+        float innerRadiusZSquared = (1 - this.getCustomFill()) * (1 - this.getCustomFill()) * largeZSquared;
 
 
         if (radiusX > 32 || radiusY > 32 || radiusZ > 32) {
@@ -408,46 +382,6 @@ public class SphereGen extends AbstractFillableBlockShape {
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-
-    private void getCovered(int minLarge, int maxLarge, int minHeight, int maxHeight) {
-        int maxLarge1 = Math.max(radiusZ, Math.max(radiusX, radiusY));
-        if (rotator == null) {
-            int largeXSquared = radiusX * radiusX;
-            int largeZSquared = radiusZ * radiusZ;
-
-            int xBound = (360 - maxLarge + minLarge) / 360 * radiusX;
-            int zBound = (360 - maxLarge + minLarge) / 360 * radiusZ;
-
-            for (int x = (180 - maxLarge + minLarge) / 180 * radiusX; x < xBound; x++) {
-                int chunkX = (x + centerX) >> 4;
-                boolean different = chunkX != lastChunkX;
-
-                float x2 = (float) (x * x) / largeXSquared;
-
-                for (int z = (180 - maxLarge + minLarge) / 180 * radiusZ; z < zBound; z++) {
-                    if (x2 + (float) (z * z) / largeZSquared <= 1f) {
-                        shouldAddChunkPrecomputedX(z + centerZ, different, chunkX);
-                    }
-                }
-            }
-        } else {
-            for (float theta = minLarge; theta <= maxLarge; theta += (float) 45 / maxLarge1) {
-
-                float xCosTheta = radiusX * FastMaths.getFastCos(theta);
-                float zSinTheta = radiusZ * FastMaths.getFastSin(theta);
-
-                for (float phi = minHeight; phi <= maxHeight; phi += (float) 45 / maxLarge1) {
-                    float cosPhi = FastMaths.getFastCos(phi);
-
-                    float x = xCosTheta * cosPhi;
-                    float y = (radiusY * FastMaths.getFastSin(phi));
-                    float z = zSinTheta * cosPhi;
-                    BlockPos pos = rotator.getBlockPos(x, y, z);
-                    shouldAddChunk(pos.getX(), pos.getZ());
                 }
             }
         }

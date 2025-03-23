@@ -136,9 +136,9 @@ public class ModConfig {
 
     private List<ConfigCategory> shouldWrite() {
         List<ConfigCategory> configCaterories = new ArrayList<>();
-        Path path = ConfigUtil.getConfigPath(MOD_ID);
+        Path basePath = ConfigUtil.getConfigPath(MOD_ID);
         for (ConfigCategory cat : categories.values()) {
-            path = path.resolve(cat.getName() + ".toml");
+            Path path = basePath.resolve(cat.getName() + ".toml");
             if (!path.toFile().exists()) {
                 configCaterories.add(cat);
             }

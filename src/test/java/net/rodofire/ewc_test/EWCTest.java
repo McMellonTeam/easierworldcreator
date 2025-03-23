@@ -22,7 +22,7 @@ public class EWCTest implements ModInitializer {
         FeaturesRelated.ModItems.registerModItems();
         FeaturesRelated.ModBlocks.registerModBlocks();
         FeaturesRelated.ModFeatures.addFeatures();
-        BiomeModifications.addFeature(BiomeSelectors.includeByKey(BiomeKeys.PLAINS, BiomeKeys.BEACH, BiomeKeys.FOREST, BiomeKeys.TAIGA, BiomeKeys.BIRCH_FOREST), GenerationStep.Feature.TOP_LAYER_MODIFICATION, FeaturesRelated.ModPLacedFeatures.FEATURE_TESTER);
+        //BiomeModifications.addFeature(BiomeSelectors.includeByKey(BiomeKeys.PLAINS, BiomeKeys.BEACH, BiomeKeys.FOREST, BiomeKeys.TAIGA, BiomeKeys.BIRCH_FOREST), GenerationStep.Feature.TOP_LAYER_MODIFICATION, FeaturesRelated.ModPLacedFeatures.FEATURE_TESTER);
 
         Ewc.init();
         ExampleConfig.registerConfig();

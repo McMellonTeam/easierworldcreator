@@ -1,18 +1,19 @@
-package net.rodofire.easierworldcreator.shape.block.gen;
+package net.rodofire.ewc_test.shape.block.expected_shapes.gen;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
-import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
 import net.rodofire.easierworldcreator.shape.block.rotations.Rotator;
 import net.rodofire.easierworldcreator.util.LongPosHelper;
+import net.rodofire.ewc_test.shape.block.expected_shapes.instanciator.ExpectedAbstractFillableBlockShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Set;
 
 /*
 
@@ -102,7 +103,7 @@ import java.util.Map;
  * </ul>
  */
 @SuppressWarnings("unused")
-public class CylinderGen extends AbstractFillableBlockShape {
+public class ExpectedCylinder extends ExpectedAbstractFillableBlockShape {
     private int radiusX;
     private int radiusZ;
     private int height;
@@ -115,7 +116,7 @@ public class CylinderGen extends AbstractFillableBlockShape {
      * @param radiusZ the radius of the cylinder on the z-axis
      * @param height  the height of the cylinder
      */
-    public CylinderGen(@NotNull BlockPos pos, Rotator rotator, int radiusX, int radiusZ, int height) {
+    public ExpectedCylinder(@NotNull BlockPos pos, Rotator rotator, int radiusX, int radiusZ, int height) {
         super(pos, rotator);
         this.radiusX = radiusX;
         this.radiusZ = radiusZ;
@@ -129,7 +130,7 @@ public class CylinderGen extends AbstractFillableBlockShape {
      * @param radius the radius of the cylinder
      * @param height the height of the cylinder
      */
-    public CylinderGen(@NotNull BlockPos pos, int radius, int height) {
+    public ExpectedCylinder(@NotNull BlockPos pos, int radius, int height) {
         super(pos);
         this.radiusX = radius;
         this.radiusZ = radius;
@@ -149,6 +150,17 @@ public class CylinderGen extends AbstractFillableBlockShape {
     }
 
     /**
+     * Gets the height of the cylinder.
+     *
+     * <p>The height represents the vertical size of the cylinder.</p>
+     *
+     * @return the height of the cylinder, in units.
+     */
+    public int getHeight() {
+        return height;
+    }
+
+    /**
      * Sets the radius of the cylinder along the X-axis.
      *
      * <p>The radius along the X-axis determines the horizontal size of the cylinder in the X direction.</p>
@@ -157,6 +169,17 @@ public class CylinderGen extends AbstractFillableBlockShape {
      */
     public void setRadiusX(int radius) {
         this.radiusX = radius;
+    }
+
+    /**
+     * Gets the radius of the cylinder along the X-axis.
+     *
+     * <p>The radius along the X-axis determines the horizontal size of the cylinder in the X direction.</p>
+     *
+     * @return the radius of the cylinder along the X-axis, in units.
+     */
+    public int getRadiusX() {
+        return radiusX;
     }
 
     /**
@@ -171,6 +194,17 @@ public class CylinderGen extends AbstractFillableBlockShape {
     }
 
     /**
+     * Gets the radius of the cylinder along the Z-axis.
+     *
+     * <p>The radius along the Z-axis determines the horizontal size of the cylinder in the Z direction.</p>
+     *
+     * @return the radius of the cylinder along the Z-axis, in units.
+     */
+    public int getRadiusZ() {
+        return radiusZ;
+    }
+
+    /**
      * Method to get the BlockPos of the shape
      *
      * @return the blockPos divided into chunkPos
@@ -178,37 +212,30 @@ public class CylinderGen extends AbstractFillableBlockShape {
     @Override
     public Map<ChunkPos, LongOpenHashSet> getShapeCoordinates() {
         this.setFill();
-        if (this.fillingType == Type.EMPTY) this.generateEmptyCylinder();
-        else this.generateFullCylinder();
+
+        if (this.getFillingType() == Type.EMPTY) {
+            this.generateEmptyCylinder();
+        } else {
+            this.generateFullCylinder();
+        }
 
         return chunkMap;
     }
 
     @Override
     public LongOpenHashSet getCoveredChunks() {
-        int estimatedSurface = switch (this.fillingType) {
-            case EMPTY -> (int) (Math.PI * (radiusZ >> 4) + Math.PI * (radiusX >> 4));
-            case FULL -> (int) (Math.PI * (radiusZ >> 4) * (radiusX >> 4));
-            case HALF ->
-                    (int) (Math.PI * (radiusZ >> 4) * (radiusX >> 4) - Math.PI * (0.5 * (radiusX >> 4)) * (0.5 * (radiusZ >> 4)));
-            default ->
-                    (int) (Math.PI * (radiusZ >> 4) * (radiusX >> 4) - Math.PI * (1 - this.customFill * (radiusX >> 4)) * (1 - this.customFill * (radiusZ >> 4)));
-        };
-        covered = new LongOpenHashSet(estimatedSurface);
-        if (this.fillingType == Type.EMPTY) this.getEmptyNonRotatedCylinder();
-        else this.generateFullCylinder();
-
         return new LongOpenHashSet();
     }
 
     /**
      * this generates a full cylinder
+     *
      */
-    private void generateFullCylinder() {
+    public void generateFullCylinder() {
         int radiusXSquared = radiusX * radiusX;
         int radiusZSquared = radiusZ * radiusZ;
-        float innerRadiusXSquared = (1 - this.customFill) * (1 - this.customFill) * radiusX * radiusX;
-        float innerRadiusZSquared = (1 - this.customFill) * (1 - this.customFill) * radiusZ * radiusZ;
+        float innerRadiusXSquared = (1 - this.getCustomFill()) * (1 - this.getCustomFill()) * radiusX * radiusX;
+        float innerRadiusZSquared = (1 - this.getCustomFill()) * (1 - this.getCustomFill()) * radiusZ * radiusZ;
 
         //Rotating a shape requires more blocks.
         //This verification is there to avoid some unnecessary calculations when the rotations don't have any impact on the number of blocks
@@ -267,7 +294,7 @@ public class CylinderGen extends AbstractFillableBlockShape {
     /**
      * this generates a full cylinder.
      */
-    private void generateEmptyCylinder() {
+    public void generateEmptyCylinder() {
         //Rotating a shape requires more blocks.
         //This verification is there to avoid some unnecessary calculations when the rotations don't have any impact on the number of blocks
         if (rotator == null) {
@@ -286,77 +313,6 @@ public class CylinderGen extends AbstractFillableBlockShape {
                     modifyChunkMap(rotator.get(x, y, z));
                 }
             }
-        }
-    }
-
-    /**
-     * many methods for performance reasons.
-     */
-    private void getNonRotatedNonFullCylinderCovered() {
-        int radiusXSquared = radiusX * radiusX;
-        int radiusZSquared = radiusZ * radiusZ;
-        float innerRadiusXSquared = (1 - this.customFill) * (1 - this.customFill) * radiusX * radiusX;
-        float innerRadiusZSquared = (1 - this.customFill) * (1 - this.customFill) * radiusZ * radiusZ;
-
-        for (int x = -this.radiusX; x <= this.radiusX; x += (int) 1f) {
-            int x2 = x * x;
-            int xSquared = x2 / radiusXSquared;
-            int chunkX = (x + centerX) >> 4;
-            boolean different = chunkX != lastChunkX;
-
-            for (int z = -this.radiusZ; z <= this.radiusZ; z += (int) 1f) {
-                int z2 = z * z;
-                int zSquared = z2 / radiusZSquared;
-                if (xSquared + zSquared <= 1) {
-                    boolean bl = true;
-                    if (innerRadiusXSquared != 0) {
-                        float innerXSquared = x2 / innerRadiusXSquared;
-                        float innerZSquared = z2 / innerRadiusZSquared;
-                        if (innerXSquared + innerZSquared <= 1f) {
-                            bl = false;
-                        }
-                    }
-                    if (bl) {
-                        shouldAddChunkPrecomputedX(z + centerZ, different, chunkX);
-                    }
-                }
-            }
-        }
-    }
-
-    private void getEmptyNonRotatedCylinder() {
-        for (float u = 0; u < 360; u += (float) 45 / Math.max(this.radiusZ, this.radiusX)) {
-            float x = radiusX * FastMaths.getFastCos(u);
-            float z = radiusZ * FastMaths.getFastSin(u);
-            shouldAddChunk((int) x + centerX, (int) z + centerZ);
-        }
-    }
-
-    private void getCovered() {
-        //Rotating a shape requires more blocks.
-        //This verification is there to avoid some unnecessary calculations when the rotations don't have any impact on the number of blocks
-
-        //we generate only generate the border of the cylinder for better performance
-        for (float u = 0; u < 360; u += (float) 35 / Math.max(this.radiusZ, this.radiusX)) {
-            float x = radiusX * FastMaths.getFastCos(u);
-            float z = radiusZ * FastMaths.getFastSin(u);
-            for (float y = 0; y <= this.height; y += 0.5f) {
-                BlockPos pos = rotator.getBlockPos(x, y, z);
-                shouldAddChunk(pos.getX(), pos.getZ());
-            }
-        }
-        for (int x = -radiusX; x < radiusX; x++) {
-            for (int z = -radiusZ; z < radiusZ; z++) {
-                BlockPos pos = rotator.getBlockPos(x, 0, z);
-                shouldAddChunk(pos.getX(), pos.getZ());
-            }
-        }
-        for (int x = -radiusX; x < radiusX; x++) {
-            for (int z = -radiusZ; z < radiusZ; z++) {
-                BlockPos pos = rotator.getBlockPos(x, this.height, z);
-                shouldAddChunk(pos.getX(), pos.getZ());
-            }
-
         }
     }
 

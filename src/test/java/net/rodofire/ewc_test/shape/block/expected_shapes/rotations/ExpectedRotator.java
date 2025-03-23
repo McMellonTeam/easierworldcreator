@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.shape.block.rotations;
+package net.rodofire.ewc_test.shape.block.expected_shapes.rotations;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.util.math.BlockPos;
@@ -7,7 +7,7 @@ import net.rodofire.easierworldcreator.maths.FastMaths;
 import net.rodofire.easierworldcreator.util.LongPosHelper;
 
 @SuppressWarnings("unused")
-public class Rotator {
+public class ExpectedRotator {
     private BlockPos centerPos = new BlockPos(0, 0, 0);
     //These are rotations in degrees (0-360).
     //These 3 are used to represent every rotation possible in a 3d world
@@ -41,7 +41,7 @@ public class Rotator {
      *                        <p> This is the third rotation applied.
      *                        <p> The parameter will make the {@link BlockPos} rotate around the y-axis
      */
-    public Rotator(BlockPos centerPos, int yRotation, int zRotation, int secondYRotation) {
+    public ExpectedRotator(BlockPos centerPos, int yRotation, int zRotation, int secondYRotation) {
         this.centerPos = centerPos;
         this.yRotation = yRotation;
         this.zRotation = zRotation;
@@ -62,7 +62,7 @@ public class Rotator {
      *                        <p> This is the third rotation applied.
      *                        <p> The parameter will make the {@link BlockPos} rotate around the y-axis
      */
-    public Rotator(int yRotation, int zRotation, int secondYRotation) {
+    public ExpectedRotator(int yRotation, int zRotation, int secondYRotation) {
         getRotations(yRotation, zRotation, secondYRotation);
     }
 
@@ -80,7 +80,7 @@ public class Rotator {
      *                  <p> This is the second rotation applied.
      *                  <p> The parameter will make the {@link BlockPos} rotate around the z-axis
      */
-    public Rotator(BlockPos centerPos, int yRotation, int zRotation) {
+    public ExpectedRotator(BlockPos centerPos, int yRotation, int zRotation) {
         this.centerPos = centerPos;
         getRotations(yRotation, zRotation, 0);
     }
@@ -96,7 +96,7 @@ public class Rotator {
      *                  <p> This is the first rotation applied.
      *                  <p> The parameter will make the {@link BlockPos} rotate around the y-axis
      */
-    public Rotator(BlockPos centerPos, int yRotation) {
+    public ExpectedRotator(BlockPos centerPos, int yRotation) {
         this.centerPos = centerPos;
         getRotations(yRotation, 0, 0);
     }
@@ -108,14 +108,14 @@ public class Rotator {
      *                  This is an important parameter to define since that if it is not specified,
      *                  the rotations will be done around the point 0,0,0
      */
-    public Rotator(BlockPos centerPos) {
+    public ExpectedRotator(BlockPos centerPos) {
         this.centerPos = centerPos;
     }
 
     /**
      * init the ShapeRotation
      */
-    public Rotator() {
+    public ExpectedRotator() {
         getRotations(0, 0, 0);
     }
 
@@ -168,7 +168,7 @@ public class Rotator {
         return centerPos;
     }
 
-    public Rotator setCenterPos(BlockPos centerPos) {
+    public ExpectedRotator setCenterPos(BlockPos centerPos) {
         this.centerPos = centerPos;
         return this;
     }
@@ -266,10 +266,6 @@ public class Rotator {
         return getBlockPos(pos[0], pos[1], pos[2]);
     }
 
-    public BlockPos getBlockPos(double[] pos) {
-        return getBlockPos(pos[0], pos[1], pos[2]);
-    }
-
     public BlockPos getBlockPos(BlockPos pos) {
         return getBlockPos(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -292,17 +288,17 @@ public class Rotator {
      * @param z the distance on the z-axis from the BlockPos
      * @return the BlockPos related to the rotation
      */
-    public BlockPos getBlockPos(double x, double y, double z) {
+    public BlockPos getBlockPos(float x, float y, float z) {
         // first y rotation
-        double x_rot1 = (x * cosY - z * sinY);
-        double z_rot1 = (x * sinY + z * cosY);
+        float x_rot1 = (float) (x * cosY - z * sinY);
+        float z_rot1 = (float) (x * sinY + z * cosY);
         // z rotation
-        double x_rot_z = (x_rot1 * cosZ - y * sinZ);
-        double y_rot_z = (x_rot1 * sinZ + y * cosZ);
+        float x_rot_z = (float) (x_rot1 * cosZ - y * sinZ);
+        float y_rot_z = (float) (x_rot1 * sinZ + y * cosZ);
 
         // second y rotation
-        double x_final = (x_rot_z * cosY2 - z_rot1 * sinY2);
-        double z_final = (x_rot_z * sinY2 + z_rot1 * cosY2);
+        float x_final = (float) (x_rot_z * cosY2 - z_rot1 * sinY2);
+        float z_final = (float) (x_rot_z * sinY2 + z_rot1 * cosY2);
 
         return new BlockPos((int) x_final + centerPos.getX(), (int) y_rot_z + centerPos.getY(), (int) z_final + centerPos.getZ());
     }

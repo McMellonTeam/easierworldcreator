@@ -69,7 +69,7 @@ public class LayerPlacer {
         if (ruler == null) {
             return worldAccess.getBlockState(pos).isAir() && worldAccess.setBlockState(pos, state, 3);
         }
-        return ruler.canPlace(state) && worldAccess.setBlockState(pos, state, 3);
+        return ruler.canPlace(worldAccess.getBlockState(pos)) && worldAccess.setBlockState(pos, state, 3);
     }
 
     public boolean place(StructureWorldAccess worldAccess, BlockState[] states, BlockPos pos, StructurePlacementRuleManager ruler) {
@@ -91,7 +91,7 @@ public class LayerPlacer {
         if (ruler == null) {
             return worldAccess.getBlockState(pos).isAir() && worldAccess.setBlockState(pos, state, 3);
         }
-        return ruler.canPlace(state) && worldAccess.setBlockState(pos, state, 3);
+        return ruler.canPlace(worldAccess.getBlockState(pos)) && worldAccess.setBlockState(pos, state, 3);
     }
 
     /**

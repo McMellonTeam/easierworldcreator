@@ -1,20 +1,18 @@
-package net.rodofire.easierworldcreator.shape.block.gen;
+package net.rodofire.ewc_test.shape.block.expected_shapes.gen;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
-import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
 import net.rodofire.easierworldcreator.shape.block.rotations.Rotator;
 import net.rodofire.easierworldcreator.util.LongPosHelper;
 import net.rodofire.easierworldcreator.util.WorldGenUtil;
+import net.rodofire.ewc_test.shape.block.expected_shapes.instanciator.ExpectedAbstractBlockShape;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,8 +45,13 @@ import java.util.Set;
  * </ul>
  */
 @SuppressWarnings("unused")
-public class LineGen extends AbstractBlockShape {
+public class ExpectedLine extends ExpectedAbstractBlockShape {
     private BlockPos secondPos;
+
+    @Override
+    public LongOpenHashSet getCoveredChunks() {
+        return new LongOpenHashSet();
+    }
 
     /**
      * init the Line Shape
@@ -56,7 +59,7 @@ public class LineGen extends AbstractBlockShape {
      * @param pos       the position of the start of the line
      * @param secondPos the second pos on which the line has to go
      */
-    public LineGen(@NotNull BlockPos pos, Rotator rotator, BlockPos secondPos) {
+    public ExpectedLine(@NotNull BlockPos pos, Rotator rotator, BlockPos secondPos) {
         super(pos, rotator);
         this.secondPos = secondPos;
     }
@@ -67,9 +70,13 @@ public class LineGen extends AbstractBlockShape {
      * @param pos       the position of the start of the line
      * @param secondPos the second pos on which the line has to go
      */
-    public LineGen(@NotNull BlockPos pos, BlockPos secondPos) {
+    public ExpectedLine(@NotNull BlockPos pos, BlockPos secondPos) {
         super(pos);
         this.secondPos = secondPos;
+    }
+
+    public BlockPos getSecondPos() {
+        return secondPos;
     }
 
     public void setSecondPos(BlockPos secondPos) {
@@ -87,26 +94,12 @@ public class LineGen extends AbstractBlockShape {
         return chunkMap;
     }
 
-    @Override
-    public LongOpenHashSet getCoveredChunks() {
-        BlockPos.Mutable pos1 = (BlockPos.Mutable) LongPosHelper.decodeBlockPos(this.centerPos);
-        pos1.set(pos1.getX() >> 4, 0, pos1.getZ() >> 4);
-
-        BlockPos.Mutable pos2 = (BlockPos.Mutable) secondPos;
-        pos2.set(pos2.getX() >> 4, 0, pos2.getZ() >> 4);
-        int estimatedSurface = (int) WorldGenUtil.getDistance(pos1, pos2);
-
-        covered = new LongOpenHashSet(estimatedSurface);
-        getCovered();
-        return covered;
-    }
-
     /**
      * this method generates the coordinates
      *
-     * @param dir the direction of the line
+     * @param dir      the direction of the line
      */
-    private void generateAxisLine(Direction dir) {
+    public void generateAxisLine(Direction dir) {
         int length = (int) WorldGenUtil.getDistance(LongPosHelper.decodeBlockPos(centerPos), secondPos);
         for (int i = 0; i < length; i++) {
             modifyChunkMap(LongPosHelper.offset(dir, centerPos, i));
@@ -114,7 +107,7 @@ public class LineGen extends AbstractBlockShape {
     }
 
 
-    private void drawLine() {
+    public void drawLine() {
         modifyChunkMap(this.centerPos);
 
         int x1 = centerX;
@@ -182,79 +175,6 @@ public class LineGen extends AbstractBlockShape {
                 p1 += 2 * dy;
                 p2 += 2 * dx;
                 modifyChunkMap(LongPosHelper.encodeBlockPos(x1, y1, z1));
-            }
-        }
-    }
-
-    private void getCovered() {
-        shouldAddChunk(centerX, centerZ);
-
-        int x1 = centerX;
-        int y1 = centerY;
-        int z1 = centerZ;
-        int x2 = secondPos.getX();
-        int y2 = secondPos.getY();
-        int z2 = secondPos.getZ();
-
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
-        int dz = Math.abs(z2 - z1);
-
-        int xs = x1 < x2 ? 1 : -1;
-        int ys = y1 < y2 ? 1 : -1;
-        int zs = z1 < z2 ? 1 : -1;
-
-        if (dx >= dy && dx >= dz) {
-            int p1 = 2 * dy - dx;
-            int p2 = 2 * dz - dx;
-            while (x1 != x2) {
-                x1 += xs;
-                if (p1 >= 0) {
-                    y1 += ys;
-                    p1 -= 2 * dx;
-                }
-                if (p2 >= 0) {
-                    z1 += zs;
-                    p2 -= 2 * dx;
-                }
-                p1 += 2 * dy;
-                p2 += 2 * dz;
-
-                shouldAddChunk(x1, z1);
-            }
-        } else if (dy >= dx && dy >= dz) {
-            int p1 = 2 * dx - dy;
-            int p2 = 2 * dz - dy;
-            while (y1 != y2) {
-                y1 += ys;
-                if (p1 >= 0) {
-                    x1 += xs;
-                    p1 -= 2 * dy;
-                }
-                if (p2 >= 0) {
-                    z1 += zs;
-                    p2 -= 2 * dy;
-                }
-                p1 += 2 * dx;
-                p2 += 2 * dz;
-                shouldAddChunk(x1, z1);
-            }
-        } else {
-            int p1 = 2 * dy - dz;
-            int p2 = 2 * dx - dz;
-            while (z1 != z2) {
-                z1 += zs;
-                if (p1 >= 0) {
-                    y1 += ys;
-                    p1 -= 2 * dz;
-                }
-                if (p2 >= 0) {
-                    x1 += xs;
-                    p2 -= 2 * dz;
-                }
-                p1 += 2 * dy;
-                p2 += 2 * dx;
-                shouldAddChunk(x1, z1);
             }
         }
     }
