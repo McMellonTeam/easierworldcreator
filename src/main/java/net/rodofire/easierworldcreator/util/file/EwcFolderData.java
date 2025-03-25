@@ -10,10 +10,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.rodofire.easierworldcreator.Ewc;
+import net.rodofire.easierworldcreator.shape.block.MultiChunkFeaturesHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class EwcFolderData {
@@ -21,9 +24,21 @@ public class EwcFolderData {
 
     public static void initFiles() {
         Ewc.LOGGER.info("|\t- Registering Data Folders");
+
         ServerWorldEvents.LOAD.register((minecraftServer, serverWorld) -> {
             dimensionPath.put(serverWorld.getRegistryKey(), DimensionType.getSaveDirectory(serverWorld.getRegistryKey(), minecraftServer.getSavePath(WorldSavePath.ROOT)));
             createDirectories(serverWorld);
+
+            if(!getGeneratedFeatures(serverWorld).toFile().exists()) {
+                try {
+                    Files.writeString(getGeneratedFeatures(serverWorld), "{}", StandardOpenOption.CREATE);
+                } catch (IOException e) {
+                    Ewc.LOGGER.error("Failed to write generated features to file, report the issue to the mod author");
+                    e.fillInStackTrace();
+                }
+            }
+
+            MultiChunkFeaturesHandler.cleanEntries(serverWorld);
         });
     }
 
@@ -79,9 +94,18 @@ public class EwcFolderData {
         return path.resolve("chunk_" + chunk.x + "_" + chunk.z + ".json");
     }
 
+    public static Path getGeneratedFeatures(StructureWorldAccess world) {
+        Path path = getEwcDataDirectory(world);
+        return path.resolve("generated_features.json");
+    }
+
+    public static Path getGeneratedFeatures(ServerWorld world) {
+        Path path = getEwcDataDirectory(world);
+        return path.resolve("generated_features.json");
+    }
+
     public static Path getEwcDataDirectory(ServerWorld world) {
         return dimensionPath.get(world.getRegistryKey()).resolve("ewc_data");
-
     }
 
     public static Path getStructuresDirectory(ServerWorld world) {

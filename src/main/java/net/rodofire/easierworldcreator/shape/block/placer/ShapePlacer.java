@@ -12,6 +12,7 @@ import net.rodofire.easierworldcreator.blockdata.blocklist.BlockListHelper;
 import net.rodofire.easierworldcreator.blockdata.blocklist.BlockListManager;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
 import net.rodofire.easierworldcreator.blockdata.sorter.BlockSorter;
+import net.rodofire.easierworldcreator.shape.block.MultiChunkFeaturesHandler;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.animator.StructurePlaceAnimator;
 import net.rodofire.easierworldcreator.util.file.LoadChunkShapeInfo;
@@ -48,26 +49,31 @@ public class ShapePlacer {
     private WGShapeData shapeData;
 
     public ShapePlacer(StructureWorldAccess world, ShapePlacer.PlaceMoment placeMoment, BlockPos center) {
-        this(world, placeMoment, center, Identifier.of("unknown_mod:custom_shape" + Random.create().nextLong()));
+        this(world, placeMoment, center, Identifier.of("unknown_mod:custom_shape" + world.getRandom().nextLong()));
     }
 
     public ShapePlacer(StructureWorldAccess world, ShapePlacer.PlaceMoment placeMoment, BlockPos center, Identifier featureName) {
+        this.featureName = featureName.withPath(featureName.getPath() + "_" + world.getRandom().nextLong());
         this.world = world;
         this.placeMoment = placeMoment;
-        this.featureName = featureName;
         this.center = center;
     }
 
     public ShapePlacer(StructureWorldAccess world, ShapePlacer.PlaceMoment placeMoment, WGShapeData shapeData, BlockPos center) {
-        this(world, placeMoment, shapeData, center, Identifier.of("unknown_mod:custom_shape" + Random.create().nextLong()));
+        this(world, placeMoment, shapeData, center, Identifier.of("unknown_mod:custom_shape" + world.getRandom().nextLong()));
     }
 
     public ShapePlacer(StructureWorldAccess world, ShapePlacer.PlaceMoment placeMoment, WGShapeData shapeData, BlockPos center, Identifier featureName) {
+        this.featureName = featureName.withPath(featureName.getPath() + "_" + world.getRandom().nextLong());
         this.world = world;
         this.placeMoment = placeMoment;
         this.shapeData = shapeData;
-        this.featureName = featureName;
         this.center = center;
+    }
+
+
+    public Identifier getFeatureName() {
+        return featureName;
     }
 
 
@@ -127,6 +133,8 @@ public class ShapePlacer {
 
             placeWorldGenFiles();
 
+            MultiChunkFeaturesHandler.add(world, posLit.keySet(), this.featureName);
+
         } else if (placeMoment == PlaceMoment.ANIMATED_OTHER) {
             if (animator == null) {
                 animator = new StructurePlaceAnimator(world, new BlockSorter(BlockSorter.BlockSorterType.RANDOM), StructurePlaceAnimator.AnimatorTime.CONSTANT_TICKS);
@@ -156,6 +164,8 @@ public class ShapePlacer {
             manager.placeJson(world, this.featureName.getNamespace() + "-" + this.featureName.getPath(), chunkPosManager.getOffset());
 
             placeWorldGenFiles();
+
+            MultiChunkFeaturesHandler.add(world, manager.getChunkPos(), this.featureName);
 
         } else if (placeMoment == PlaceMoment.ANIMATED_OTHER) {
             if (animator == null) {
