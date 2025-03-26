@@ -21,6 +21,84 @@ import java.util.Set;
 public class WorldGenUtil {
 
     /**
+     * method to get a random direction no matter the plane
+     *
+     * @return a random direction
+     */
+    public static Direction getRandomDirection() {
+        return switch (Random.create().nextBetween(0, 5)) {
+            case 0 -> Direction.WEST;
+            case 1 -> Direction.EAST;
+            case 2 -> Direction.NORTH;
+            case 3 -> Direction.SOUTH;
+            case 4 -> Direction.UP;
+            default -> Direction.DOWN;
+        };
+    }
+
+    /**
+     * method to get a random direction on the vertical axis
+     *
+     * @return a random direction on the vertical axis
+     */
+    public static Direction getRandomVerticalDirection() {
+        return Random.create().nextBetween(0, 1) == 1 ? Direction.UP : Direction.DOWN;
+    }
+
+    /**
+     * method to get a random direction on the horizontal axis
+     *
+     * @return a random direction on the horizontal axis
+     */
+    public static Direction getRandomHorizontalDirection() {
+        return switch (Random.create().nextBetween(0, 3)) {
+            case 0 -> Direction.WEST;
+            case 1 -> Direction.EAST;
+            case 2 -> Direction.NORTH;
+            default -> Direction.SOUTH;
+        };
+    }
+
+    /**
+     * method to get a random direction no matter the plane
+     *
+     * @return a random direction
+     */
+    public static Direction getRandomDirection(Random random) {
+        return switch (random.nextBetween(0, 5)) {
+            case 0 -> Direction.WEST;
+            case 1 -> Direction.EAST;
+            case 2 -> Direction.NORTH;
+            case 3 -> Direction.SOUTH;
+            case 4 -> Direction.UP;
+            default -> Direction.DOWN;
+        };
+    }
+
+    /**
+     * method to get a random direction on the vertical axis
+     *
+     * @return a random direction on the vertical axis
+     */
+    public static Direction getRandomVerticalDirection(Random random) {
+        return random.nextBetween(0, 1) == 1 ? Direction.UP : Direction.DOWN;
+    }
+
+    /**
+     * method to get a random direction on the horizontal axis
+     *
+     * @return a random direction on the horizontal axis
+     */
+    public static Direction getRandomHorizontalDirection(Random random) {
+        return switch (random.nextBetween(0, 3)) {
+            case 0 -> Direction.WEST;
+            case 1 -> Direction.EAST;
+            case 2 -> Direction.NORTH;
+            default -> Direction.SOUTH;
+        };
+    }
+
+    /**
      * return a random int between min height and max height if the chance
      *
      * @param chance    the chance at which the result won't be equal to 0
@@ -70,6 +148,7 @@ public class WorldGenUtil {
     public static double getAbs(Vec3d pos) {
         return MathUtil.absDistance(pos.x, pos.y, pos.z);
     }
+
     public static double getSquared(Vec3d pos) {
         return MathUtil.squared(pos.x, pos.y, pos.z);
     }
