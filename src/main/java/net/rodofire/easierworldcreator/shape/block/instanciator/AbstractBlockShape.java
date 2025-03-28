@@ -3,7 +3,9 @@ package net.rodofire.easierworldcreator.shape.block.instanciator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
+import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
 import net.rodofire.easierworldcreator.shape.block.rotations.Rotator;
@@ -109,6 +111,11 @@ public abstract class AbstractBlockShape {
      * <p>To convert the long into a {@link ChunkPos}, use the long in a constructor.
      */
     public abstract LongOpenHashSet getCoveredChunks();
+
+    /**
+     * if you don't need to use a shape layer, you can directly place the shape to avoid allocating unnecessary pos
+     */
+    public abstract void place(StructureWorldAccess world, BlockLayerManager blockLayerManager);
 
     private void setCenterPos() {
         centerX = LongPosHelper.decodeX(centerPos);

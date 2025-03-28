@@ -4,7 +4,9 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
+import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
@@ -89,16 +91,21 @@ public class LineGen extends AbstractBlockShape {
 
     @Override
     public LongOpenHashSet getCoveredChunks() {
-        BlockPos.Mutable pos1 = (BlockPos.Mutable) LongPosHelper.decodeBlockPos(this.centerPos);
+        BlockPos.Mutable pos1 = LongPosHelper.decodeBlockPos(this.centerPos).mutableCopy();
         pos1.set(pos1.getX() >> 4, 0, pos1.getZ() >> 4);
 
-        BlockPos.Mutable pos2 = (BlockPos.Mutable) secondPos;
+        BlockPos.Mutable pos2 = secondPos.mutableCopy();
         pos2.set(pos2.getX() >> 4, 0, pos2.getZ() >> 4);
         int estimatedSurface = (int) WorldGenUtil.getDistance(pos1, pos2);
 
         covered = new LongOpenHashSet(estimatedSurface);
         getCovered();
         return covered;
+    }
+
+    @Override
+    public void place(StructureWorldAccess world, BlockLayerManager blockLayerManager) {
+
     }
 
     /**

@@ -4,8 +4,10 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.Ewc;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
+import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
@@ -256,6 +258,11 @@ public class SphereGen extends AbstractFillableBlockShape {
                 break;
         }
         generateEmptyEllipsoid(minTheta, maxTheta, minPhi, maxPhi);
+    }
+
+    @Override
+    public void place(StructureWorldAccess world, BlockLayerManager blockLayerManager) {
+
     }
 
     private void generateEmptyEllipsoid() {

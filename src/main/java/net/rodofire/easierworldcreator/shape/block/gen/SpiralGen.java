@@ -5,7 +5,9 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
+import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
@@ -332,6 +334,10 @@ public class SpiralGen extends AbstractBlockShape {
         return covered;
     }
 
+    @Override
+    public void place(StructureWorldAccess world, BlockLayerManager blockLayerManager) {
+
+    }
 
     /**
      * generates a simple spiral

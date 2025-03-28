@@ -3,7 +3,9 @@ package net.rodofire.easierworldcreator.shape.block.gen;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
+import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
@@ -261,6 +263,11 @@ public class TorusGen extends AbstractFillableBlockShape {
     public LongOpenHashSet getCoveredChunks() {
         this.getCovered();
         return covered;
+    }
+
+    @Override
+    public void place(StructureWorldAccess world, BlockLayerManager blockLayerManager) {
+
     }
 
 
