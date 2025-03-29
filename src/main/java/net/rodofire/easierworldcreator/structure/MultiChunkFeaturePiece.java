@@ -43,16 +43,14 @@ public abstract class MultiChunkFeaturePiece extends StructurePiece {
     public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
         if (MultiChunkFeaturesHandler.isMultiChunkFeaturesGenerated(world, featureId)) return;
 
-        this.generateBaseStructure(world, structureAccessor, chunkGenerator, random, chunkBox, chunkPos, pivot);
-
         ShapePlacer shapePlacer = new ShapePlacer(world, ShapePlacer.PlaceMoment.WORLD_GEN, chunkPos.getCenterAtY(0));
         shapePlacer.setFeatureName(this.featureId);
 
-        DividedBlockListManager dividedBlockListManager = getDividedStructure();
+        DividedBlockListManager dividedBlockListManager = getDividedStructure(world, structureAccessor, chunkGenerator, random, chunkBox, chunkPos, pivot);
         if (dividedBlockListManager != null) {
-            shapePlacer.place(getDividedStructure());
+            shapePlacer.place(dividedBlockListManager);
         } else {
-            Pair<Map<ChunkPos, LongOpenHashSet>, LayerManager> pair = getStructurePair();
+            Pair<Map<ChunkPos, LongOpenHashSet>, LayerManager> pair = getStructurePair(world, structureAccessor, chunkGenerator, random, chunkBox, chunkPos, pivot);
             if (pair != null && pair.getLeft() != null && pair.getRight() != null) {
                 shapePlacer.place(pair.getLeft(), pair.getRight());
             }
@@ -60,11 +58,11 @@ public abstract class MultiChunkFeaturePiece extends StructurePiece {
     }
 
     /**
-     * Method to get the divided blockList manager. If you don't need to provide a DividedBlockListManager, you can use {@link MultiChunkFeaturePiece#getStructurePair()}
+     * Method to get the divided blockList manager. If you don't need to provide a DividedBlockListManager, you can use {@link MultiChunkFeaturePiece#getStructurePair(StructureWorldAccess, StructureAccessor, ChunkGenerator, Random, BlockBox, ChunkPos, BlockPos)}
      */
-    public abstract DividedBlockListManager getDividedStructure();
+    public abstract DividedBlockListManager getDividedStructure(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot);
 
-    public abstract Pair<Map<ChunkPos, LongOpenHashSet>, LayerManager> getStructurePair();
+    public abstract Pair<Map<ChunkPos, LongOpenHashSet>, LayerManager> getStructurePair(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot);
 
     public abstract void generateBaseStructure(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot);
 }
