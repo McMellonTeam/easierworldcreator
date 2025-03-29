@@ -39,7 +39,7 @@ public class ShapePlacer {
     /**
      * for better debugging, the identifier is used to know which feature is being generated
      */
-    private final Identifier featureName;
+    private Identifier featureName;
     private final PlaceMoment placeMoment;
     private StructurePlaceAnimator animator;
 
@@ -74,6 +74,10 @@ public class ShapePlacer {
 
     public Identifier getFeatureName() {
         return featureName;
+    }
+
+    public void setFeatureName(Identifier featureName) {
+        this.featureName = featureName;
     }
 
 

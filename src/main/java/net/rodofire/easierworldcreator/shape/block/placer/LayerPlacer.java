@@ -2,6 +2,7 @@ package net.rodofire.easierworldcreator.shape.block.placer;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.blockdata.StructurePlacementRuleManager;
 import net.rodofire.easierworldcreator.blockdata.layer.BlockLayer;
@@ -18,19 +19,69 @@ public class LayerPlacer {
     private final PlacingType type;
     FastNoiseLite noise;
     int placedBlocks = 0;
+    private Random random = Random.create();
 
+    /**
+     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     */
+    @Deprecated(forRemoval = true)
     public LayerPlacer(int placedBlocks, PlacingType type) {
         this.placedBlocks = placedBlocks;
         this.type = type;
     }
 
+    /**
+     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     */
+    @Deprecated(forRemoval = true)
     public LayerPlacer(PlacingType type, FastNoiseLite noise) {
         this.type = type;
         this.noise = noise;
     }
 
+    /**
+     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     */
+    @Deprecated(forRemoval = true)
     public LayerPlacer(PlacingType type) {
         this.type = type;
+    }
+
+    /**
+     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     */
+    @Deprecated(forRemoval = true)
+    public LayerPlacer(int placedBlocks, PlacingType type, Random random) {
+        this.placedBlocks = placedBlocks;
+        this.random = random;
+        this.type = type;
+    }
+
+    /**
+     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     */
+    @Deprecated(forRemoval = true)
+    public LayerPlacer(PlacingType type, Random random) {
+        this.type = type;
+        this.random = random;
+    }
+
+    private LayerPlacer(PlacingType type, FastNoiseLite noise, Random random) {
+        this.type = type;
+        this.random = random;
+        this.noise = noise;
+    }
+
+    public static LayerPlacer ofRandom(PlacingType type, Random random) {
+        return new LayerPlacer(type, null, random);
+    }
+
+    public static LayerPlacer ofNoise(PlacingType type, FastNoiseLite noise) {
+        return new LayerPlacer(type, noise, null);
+    }
+
+    public LayerPlacer() {
+        this.type = PlacingType.RANDOM;
     }
 
     public boolean place(StructureWorldAccess worldAccess, List<BlockState> states, BlockPos pos) {
@@ -63,7 +114,7 @@ public class LayerPlacer {
                     state = BlockPlaceUtil.getBlockWithOrder(states, this.placedBlocks);
                     this.placedBlocks = (this.placedBlocks + 1) % (states.size() - 1);
                 }
-                default -> state = BlockPlaceUtil.getRandomBlock(states);
+                default -> state = BlockPlaceUtil.getRandomBlock(states, random);
             }
         }
         if (ruler == null) {
@@ -85,7 +136,7 @@ public class LayerPlacer {
                     state = BlockPlaceUtil.getBlockWithOrder(states, this.placedBlocks);
                     this.placedBlocks = (this.placedBlocks + 1) % (states.length - 1);
                 }
-                default -> state = BlockPlaceUtil.getRandomBlock(states);
+                default -> state = BlockPlaceUtil.getRandomBlock(states, random);
             }
         }
         if (ruler == null) {
@@ -108,7 +159,7 @@ public class LayerPlacer {
             return states.getFirst();
 
         return switch (this.type) {
-            case RANDOM -> BlockPlaceUtil.getRandomBlock(states);
+            case RANDOM -> BlockPlaceUtil.getRandomBlock(states, random);
             case NOISE2D -> BlockPlaceUtil.getBlockWith2DNoise(states, pos, this.noise);
             case NOISE3D -> BlockPlaceUtil.getBlockWith3DNoise(states, pos, this.noise);
             case ORDER -> {
@@ -124,7 +175,7 @@ public class LayerPlacer {
         if (states.length == 1)
             return states[0];
         return switch (this.type) {
-            case RANDOM -> BlockPlaceUtil.getRandomBlock(states);
+            case RANDOM -> BlockPlaceUtil.getRandomBlock(states, random);
             case NOISE2D -> BlockPlaceUtil.getBlockWith2DNoise(states, pos, this.noise);
             case NOISE3D -> BlockPlaceUtil.getBlockWith3DNoise(states, pos, this.noise);
             case ORDER -> {

@@ -290,6 +290,18 @@ public class BlockPlaceUtil {
     }
 
     /**
+     * method to place random blocks based on a given list
+     *
+     * @param world        the world where the {@link Block} will be placed
+     * @param blockToPlace list of blocks to place
+     * @param pos          the position of the block
+     */
+    public static void placeRandomBlock(StructureWorldAccess world, List<BlockState> blockToPlace, BlockPos pos, Random random) {
+        int length = blockToPlace.size() - 1;
+        world.setBlockState(pos, blockToPlace.get(random.nextBetween(0, length)), 2);
+    }
+
+    /**
      * Place the block corresponding to the index 'i'.
      * Generally, after that, the index 'i' will be incremented by one every time this method is called.
      * But you can change it to place two same blocks then incrementing
@@ -351,6 +363,18 @@ public class BlockPlaceUtil {
      */
     public static BlockState getRandomBlock(List<BlockState> blocksToPlace) {
         return blocksToPlace.get(Random.create().nextBetween(0, blocksToPlace.size() - 1));
+    }
+
+    /**
+     * return the BlockState wanted based on randomness
+     * this method doesn't place the block
+     * It is notable used during the shape gen during world gen
+     *
+     * @param blocksToPlace the block states list that would be chosen from
+     * @return the block related to the noise
+     */
+    public static BlockState getRandomBlock(List<BlockState> blocksToPlace, Random random) {
+        return blocksToPlace.get(random.nextBetween(0, blocksToPlace.size() - 1));
     }
 
     /**
@@ -420,6 +444,18 @@ public class BlockPlaceUtil {
      */
     public static BlockState getRandomBlock(BlockState[] blocksToPlace) {
         return blocksToPlace[Random.create().nextBetween(0, blocksToPlace.length - 1)];
+    }
+
+    /**
+     * return the BlockState wanted based on randomness
+     * this method doesn't place the block
+     * It is notable used during the shape gen during world gen
+     *
+     * @param blocksToPlace the block states list that would be chosen from
+     * @return the block related to the noise
+     */
+    public static BlockState getRandomBlock(BlockState[] blocksToPlace, Random random) {
+        return blocksToPlace[random.nextBetween(0, blocksToPlace.length - 1)];
     }
 
     /**
