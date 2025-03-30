@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.client.hud.widget;
+package net.rodofire.easierworldcreator.client.gui.widget;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

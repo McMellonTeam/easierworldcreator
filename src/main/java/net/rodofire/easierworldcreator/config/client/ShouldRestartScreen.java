@@ -7,7 +7,7 @@ import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import net.rodofire.easierworldcreator.client.hud.widget.TextButtonWidget;
+import net.rodofire.easierworldcreator.client.gui.widget.TextButtonWidget;
 
 @Environment(EnvType.CLIENT)
 public class ShouldRestartScreen extends Screen {

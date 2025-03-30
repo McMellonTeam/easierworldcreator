@@ -31,7 +31,7 @@ public abstract class MultiChunkFeaturePiece extends StructurePiece {
 
     @Override
     protected void writeNbt(StructureContext context, NbtCompound nbt) {
-        nbt.putString("id", featureId.toString());
+        nbt.putString("structure_id", featureId.toString());
     }
 
     public MultiChunkFeaturePiece(StructurePieceType pieceType, NbtCompound nbtCompound) {

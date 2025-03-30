@@ -12,9 +12,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.rodofire.easierworldcreator.Ewc;
-import net.rodofire.easierworldcreator.client.hud.screen.AbstractInfoScreen;
-import net.rodofire.easierworldcreator.client.hud.widget.ImageButtonWidget;
-import net.rodofire.easierworldcreator.client.hud.widget.ScrollBarWidget;
+import net.rodofire.easierworldcreator.client.gui.screen.AbstractInfoScreen;
+import net.rodofire.easierworldcreator.client.gui.widget.ImageButtonWidget;
+import net.rodofire.easierworldcreator.client.gui.widget.ScrollBarWidget;
 
 import java.util.List;
 

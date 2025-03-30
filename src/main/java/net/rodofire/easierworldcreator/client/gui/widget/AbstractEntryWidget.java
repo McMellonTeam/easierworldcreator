@@ -1,8 +1,7 @@
-package net.rodofire.easierworldcreator.client.hud.widget;
+package net.rodofire.easierworldcreator.client.gui.widget;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;

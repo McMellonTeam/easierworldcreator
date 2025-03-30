@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.client.hud.screen;
+package net.rodofire.easierworldcreator.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;

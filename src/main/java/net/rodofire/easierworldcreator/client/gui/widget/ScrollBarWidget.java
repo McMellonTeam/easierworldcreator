@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.client.hud.widget;
+package net.rodofire.easierworldcreator.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;

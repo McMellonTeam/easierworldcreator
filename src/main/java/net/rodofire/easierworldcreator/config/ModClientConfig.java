@@ -2,7 +2,7 @@ package net.rodofire.easierworldcreator.config;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.rodofire.easierworldcreator.client.hud.screen.AbstractInfoScreen;
+import net.rodofire.easierworldcreator.client.gui.screen.AbstractInfoScreen;
 import net.rodofire.easierworldcreator.config.client.ConfigScreen;
 import net.rodofire.easierworldcreator.config.objects.AbstractConfigObject;
 

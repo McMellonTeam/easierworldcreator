@@ -26,7 +26,7 @@ public class EwcFolderData {
         Ewc.LOGGER.info("|\t- Registering Data Folders");
 
         ServerWorldEvents.LOAD.register((minecraftServer, serverWorld) -> {
-            Ewc.LOGGER.info("Initializing and cleaning shape files");
+            Ewc.LOGGER.info("Initializing and cleaning shape files for dimension: " + serverWorld.getRegistryKey().toString());
             dimensionPath.put(serverWorld.getRegistryKey(), DimensionType.getSaveDirectory(serverWorld.getRegistryKey(), minecraftServer.getSavePath(WorldSavePath.ROOT)));
             createDirectories(serverWorld);
 
@@ -40,6 +40,7 @@ public class EwcFolderData {
             }
 
             MultiChunkFeaturesHandler.cleanEntries(serverWorld);
+            Ewc.LOGGER.info("finished file initialize and clean");
         });
     }
 

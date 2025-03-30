@@ -1,4 +1,4 @@
-package net.rodofire.easierworldcreator.client.hud.widget;
+package net.rodofire.easierworldcreator.client.gui.widget;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -7,7 +7,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.rodofire.easierworldcreator.Ewc;
-import net.rodofire.easierworldcreator.client.hud.screen.AbstractInfoScreen;
+import net.rodofire.easierworldcreator.client.gui.screen.AbstractInfoScreen;
 
 /**
  * class that allows to open an info screen

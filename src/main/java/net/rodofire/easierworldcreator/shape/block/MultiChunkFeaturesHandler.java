@@ -7,6 +7,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.rodofire.easierworldcreator.Ewc;
 import net.rodofire.easierworldcreator.util.ChunkUtil;
 import net.rodofire.easierworldcreator.util.file.EwcFolderData;
 
@@ -76,50 +77,52 @@ public class MultiChunkFeaturesHandler {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonObject jsonObject;
         fileLock.lock();
-        if (generatedFeaturesFile.exists()) {
-            try (FileReader reader = new FileReader(generatedFeaturesFile)) {
-                jsonObject = gson.fromJson(reader, JsonObject.class);
-                if (jsonObject == null) {
-                    jsonObject = new JsonObject();
+        try {
+            if (generatedFeaturesFile.exists()) {
+                try (FileReader reader = new FileReader(generatedFeaturesFile)) {
+                    jsonObject = gson.fromJson(reader, JsonObject.class);
+                    if (jsonObject == null) {
+                        jsonObject = new JsonObject();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
                 return;
             }
-        } else {
-            return;
-        }
 
-        Set<String> toRemove = new HashSet<>();
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            JsonArray chunkArray = entry.getValue().getAsJsonArray();
-            if (chunkArray.isEmpty()) {
-                toRemove.add(entry.getKey());
-                continue;
-            }
+            Set<String> toRemove = new HashSet<>();
+            for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                JsonArray chunkArray = entry.getValue().getAsJsonArray();
+                if (chunkArray.isEmpty()) {
+                    toRemove.add(entry.getKey());
+                    continue;
+                }
 
-            boolean shouldRemove = true;
-            for (JsonElement element : chunkArray.asList()) {
-                String[] parts = element.getAsString().split(",");
-                int x = Integer.parseInt(parts[0]);
-                int z = Integer.parseInt(parts[1]);
-                ChunkPos chunkPos = new ChunkPos(x, z);
+                boolean shouldRemove = true;
+                for (JsonElement element : chunkArray.asList()) {
+                    String[] parts = element.getAsString().split(",");
+                    int x = Integer.parseInt(parts[0]);
+                    int z = Integer.parseInt(parts[1]);
+                    ChunkPos chunkPos = new ChunkPos(x, z);
 
-                Chunk chunk = world.getChunk(chunkPos.x, chunkPos.z);
-                System.out.println(chunk);
-                if (chunk == null) {
-                    shouldRemove = false;
+                    Chunk chunk = world.getChunk(chunkPos.x, chunkPos.z);
+                    if (chunk == null) {
+                        shouldRemove = false;
+                    }
+                }
+
+                if (shouldRemove) {
+                    toRemove.add(entry.getKey());
                 }
             }
 
-            if (shouldRemove) {
-                System.out.println("Removing chunk " + entry.getKey());
-                toRemove.add(entry.getKey());
-            }
-        }
-        toRemove.forEach(jsonObject::remove);
+            Ewc.LOGGER.info("cleaning {} entries", toRemove.size());
+            toRemove.forEach(jsonObject::remove);
 
-        try (FileWriter writer = new FileWriter(generatedFeaturesFile)) {
+
+            FileWriter writer = new FileWriter(generatedFeaturesFile);
             gson.toJson(jsonObject, writer);
         } catch (IOException e) {
             e.printStackTrace();

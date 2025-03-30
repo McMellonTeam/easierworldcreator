@@ -22,7 +22,7 @@ public class LayerPlacer {
     private Random random = Random.create();
 
     /**
-     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     * use factory methods {@link LayerPlacer#ofRandom()}
      */
     @Deprecated(forRemoval = true)
     public LayerPlacer(int placedBlocks, PlacingType type) {
@@ -31,7 +31,7 @@ public class LayerPlacer {
     }
 
     /**
-     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     * use factory methods {@link LayerPlacer#ofRandom()}
      */
     @Deprecated(forRemoval = true)
     public LayerPlacer(PlacingType type, FastNoiseLite noise) {
@@ -40,7 +40,7 @@ public class LayerPlacer {
     }
 
     /**
-     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     * use factory methods {@link LayerPlacer#ofRandom()}
      */
     @Deprecated(forRemoval = true)
     public LayerPlacer(PlacingType type) {
@@ -48,7 +48,7 @@ public class LayerPlacer {
     }
 
     /**
-     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     * use factory methods {@link LayerPlacer#ofRandom()}
      */
     @Deprecated(forRemoval = true)
     public LayerPlacer(int placedBlocks, PlacingType type, Random random) {
@@ -58,7 +58,7 @@ public class LayerPlacer {
     }
 
     /**
-     * use factory methods {@link LayerPlacer#ofNoise(PlacingType, FastNoiseLite)}
+     * use factory methods {@link LayerPlacer#ofRandom()}
      */
     @Deprecated(forRemoval = true)
     public LayerPlacer(PlacingType type, Random random) {
@@ -72,13 +72,34 @@ public class LayerPlacer {
         this.noise = noise;
     }
 
-    public static LayerPlacer ofRandom(PlacingType type, Random random) {
-        return new LayerPlacer(type, null, random);
+    public static LayerPlacer ofRandom() {
+        return new LayerPlacer(PlacingType.RANDOM, null, Random.create());
     }
 
-    public static LayerPlacer ofNoise(PlacingType type, FastNoiseLite noise) {
-        return new LayerPlacer(type, noise, null);
+    public static LayerPlacer ofRandom(Random random) {
+        return new LayerPlacer(PlacingType.RANDOM, null, random);
     }
+
+    public static LayerPlacer of3DNoise(FastNoiseLite noise) {
+        return new LayerPlacer(PlacingType.NOISE3D, noise, null);
+    }
+
+    public static LayerPlacer of3DNoise() {
+        return new LayerPlacer(PlacingType.NOISE3D, new FastNoiseLite(), null);
+    }
+
+    public static LayerPlacer of2DNoise(FastNoiseLite noise) {
+        return new LayerPlacer(PlacingType.NOISE2D, noise, null);
+    }
+
+    public static LayerPlacer of2DNoise() {
+        return new LayerPlacer(PlacingType.NOISE2D, new FastNoiseLite(), null);
+    }
+
+    public static LayerPlacer ofOrder(){
+        return new LayerPlacer(PlacingType.ORDER, null, null);
+    }
+
 
     public LayerPlacer() {
         this.type = PlacingType.RANDOM;
