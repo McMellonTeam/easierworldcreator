@@ -26,11 +26,12 @@ public class MultiChunkFeaturesHandler {
 
     public static boolean isMultiChunkFeaturesGenerated(StructureWorldAccess world, Identifier featureName) {
         Path referencePath = EwcFolderData.getGeneratedFeatures(world);
+        Gson gson = new Gson();
         try (FileReader reader = new FileReader(referencePath.toFile())) {
-            JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-            if (jsonObject == null) return false;
+            JsonObject json = gson.fromJson(reader, JsonObject.class);
+            if (json == null) return false;
 
-            return jsonObject.has(featureName.toString());
+            return json.has(featureName.toString());
 
         } catch (Exception e) {
             e.fillInStackTrace();
