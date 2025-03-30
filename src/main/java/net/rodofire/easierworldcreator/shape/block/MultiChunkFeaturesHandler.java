@@ -1,10 +1,12 @@
 package net.rodofire.easierworldcreator.shape.block;
 
 import com.google.gson.*;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.rodofire.easierworldcreator.Ewc;
@@ -16,30 +18,77 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class MultiChunkFeaturesHandler {
+    private static Map<RegistryKey<World>, Map<Identifier, Set<ChunkPos>>> generated = new HashMap<>();
+
     private static final ReentrantLock fileLock = new ReentrantLock();
 
-    public static boolean isMultiChunkFeaturesGenerated(StructureWorldAccess world, Identifier featureName) {
-        Path referencePath = EwcFolderData.getGeneratedFeatures(world);
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader(referencePath.toFile())) {
-            JsonObject json = gson.fromJson(reader, JsonObject.class);
-            if (json == null) return false;
+    public static void init(ServerWorld world) {
+        File generatedFeaturesFile = EwcFolderData.getGeneratedFeatures(world).toFile();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonObject jsonObject;
 
-            return json.has(featureName.toString());
+        try {
+            if (generatedFeaturesFile.exists()) {
+                try (FileReader reader = new FileReader(generatedFeaturesFile)) {
+                    jsonObject = gson.fromJson(reader, JsonObject.class);
+                    if (jsonObject == null) {
+                        jsonObject = new JsonObject();
+                    }
+                }
+            } else {
+                jsonObject = new JsonObject();
+            }
 
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            return false;
+            generated.computeIfAbsent(world.getRegistryKey(), k -> new HashMap<>());
+            for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                JsonArray chunkArray = entry.getValue().getAsJsonArray();
+                Set<ChunkPos> chunks = new HashSet<>();
+
+                for (JsonElement element : chunkArray.asList()) {
+                    String[] parts = element.getAsString().split(",");
+                    int x = Integer.parseInt(parts[0]);
+                    int z = Integer.parseInt(parts[1]);
+                    ChunkPos chunkPos = new ChunkPos(x, z);
+                    chunks.add(chunkPos);
+                }
+
+                generated.get(world.getRegistryKey()).put(Identifier.of(entry.getKey()), chunks);
+
+            }
+
+
+            try (FileWriter writer = new FileWriter(generatedFeaturesFile)) {
+                gson.toJson(jsonObject, writer);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            fileLock.unlock();
         }
+
+    }
+
+    public static boolean isMultiChunkFeaturesGenerated(StructureWorldAccess world, Identifier featureName) {
+        return generated.computeIfAbsent(world.toServerWorld().getRegistryKey(), (o) -> new HashMap<>()).containsKey(featureName);
     }
 
     public static void add(StructureWorldAccess world, Set<ChunkPos> chunkPosSet, Identifier featureName) {
+        try {
+            generated.computeIfAbsent(world.toServerWorld().getRegistryKey(), (o) -> new HashMap<>()).put(featureName, chunkPosSet);
+        } catch (Exception e) {
+            e.fillInStackTrace();
+        }
+    }
+
+    public static void save(StructureWorldAccess world) {
         File generatedFeaturesFile = EwcFolderData.getGeneratedFeatures(world).toFile();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonObject jsonObject;
@@ -57,10 +106,14 @@ public class MultiChunkFeaturesHandler {
                 jsonObject = new JsonObject();
             }
             JsonArray chunkArray = new JsonArray();
-            for (ChunkPos pos : chunkPosSet) {
-                chunkArray.add(pos.x + "," + pos.z);
+
+            for (Map.Entry<Identifier, Set<ChunkPos>> entry : generated.get(world.toServerWorld().getRegistryKey()).entrySet()) {
+                if (jsonObject.has(entry.getKey().toString())) continue;
+                for (ChunkPos pos : entry.getValue()) {
+                    chunkArray.add(pos.x + "," + pos.z);
+                }
+                jsonObject.add(entry.getKey().toString(), chunkArray);
             }
-            jsonObject.add(featureName.toString(), chunkArray);
 
             try (FileWriter writer = new FileWriter(generatedFeaturesFile)) {
                 gson.toJson(jsonObject, writer);

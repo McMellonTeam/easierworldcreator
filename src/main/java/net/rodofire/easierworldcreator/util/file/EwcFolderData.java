@@ -1,5 +1,6 @@
 package net.rodofire.easierworldcreator.util.file;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
@@ -20,6 +21,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class EwcFolderData {
+    private static int tickNumber = 0;
     private static final Map<RegistryKey<World>, Path> dimensionPath = new HashMap<>();
 
     public static void initFiles() {
@@ -30,7 +32,7 @@ public class EwcFolderData {
             dimensionPath.put(serverWorld.getRegistryKey(), DimensionType.getSaveDirectory(serverWorld.getRegistryKey(), minecraftServer.getSavePath(WorldSavePath.ROOT)));
             createDirectories(serverWorld);
 
-            if(!getGeneratedFeatures(serverWorld).toFile().exists()) {
+            if (!getGeneratedFeatures(serverWorld).toFile().exists()) {
                 try {
                     Files.writeString(getGeneratedFeatures(serverWorld), "{}", StandardOpenOption.CREATE);
                 } catch (IOException e) {
@@ -41,6 +43,16 @@ public class EwcFolderData {
 
             MultiChunkFeaturesHandler.cleanEntries(serverWorld);
             Ewc.LOGGER.info("finished file initialize and clean");
+        });
+
+        ServerWorldEvents.UNLOAD.register((minecraftServer, serverWorld) -> {
+            MultiChunkFeaturesHandler.save(serverWorld);
+        });
+
+        ServerTickEvents.END_WORLD_TICK.register(serverWorld -> {
+            if (tickNumber++ % 1200 == 0) {
+                MultiChunkFeaturesHandler.save(serverWorld);
+            }
         });
     }
 

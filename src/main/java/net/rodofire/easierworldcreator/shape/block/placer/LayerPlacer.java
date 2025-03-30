@@ -105,6 +105,16 @@ public class LayerPlacer {
         this.type = PlacingType.RANDOM;
     }
 
+
+    public void setNoise(FastNoiseLite noise) {
+        this.noise = noise;
+    }
+
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
+
     public boolean place(StructureWorldAccess worldAccess, List<BlockState> states, BlockPos pos) {
         return place(worldAccess, states, pos, null);
     }
