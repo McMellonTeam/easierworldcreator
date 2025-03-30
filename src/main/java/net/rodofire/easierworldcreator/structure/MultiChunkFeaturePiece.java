@@ -18,30 +18,43 @@ import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManag
 import net.rodofire.easierworldcreator.shape.block.MultiChunkFeaturesHandler;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class MultiChunkFeaturePiece extends StructurePiece {
     protected Identifier featureId;
+    protected Set<ChunkPos> chunkPosSet = new HashSet<>();
 
-    protected MultiChunkFeaturePiece(StructurePieceType type, int length, BlockBox boundingBox, Identifier featureId) {
+    protected MultiChunkFeaturePiece(StructurePieceType type, int length, BlockBox boundingBox, Identifier featureId, Set<ChunkPos> chunkPosSet) {
         super(type, length, boundingBox);
-        this.featureId = featureId.withPath(featureId.getPath() + "_" + Random.create().nextLong());
+        this.featureId = featureId;
+        this.chunkPosSet = chunkPosSet;
     }
 
     @Override
     protected void writeNbt(StructureContext context, NbtCompound nbt) {
         nbt.putString("structure_id", featureId.toString());
+        nbt.putLongArray("chunkPos", chunkPosSet.stream()
+                .mapToLong(ChunkPos::toLong)
+                .toArray()
+        );
     }
 
     public MultiChunkFeaturePiece(StructurePieceType pieceType, NbtCompound nbtCompound) {
         super(pieceType, nbtCompound);
         this.featureId = Identifier.of(nbtCompound.getString("structure_id"));
+        long[] chunkPos = nbtCompound.getLongArray("chunkPos");
+        Arrays.stream(chunkPos).forEach((longPos) -> this.chunkPosSet.add(new ChunkPos(longPos)));
     }
 
     @Override
     public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
         if (MultiChunkFeaturesHandler.isMultiChunkFeaturesGenerated(world, featureId)) return;
+        MultiChunkFeaturesHandler.add(world, this.chunkPosSet, this.featureId);
 
         ShapePlacer shapePlacer = new ShapePlacer(world, ShapePlacer.PlaceMoment.WORLD_GEN, chunkPos.getCenterAtY(0));
         shapePlacer.setFeatureName(this.featureId);
@@ -60,8 +73,10 @@ public abstract class MultiChunkFeaturePiece extends StructurePiece {
     /**
      * Method to get the divided blockList manager. If you don't need to provide a DividedBlockListManager, you can use {@link MultiChunkFeaturePiece#getStructurePair(StructureWorldAccess, StructureAccessor, ChunkGenerator, Random, BlockBox, ChunkPos, BlockPos)}
      */
+    @Nullable
     public abstract DividedBlockListManager getDividedStructure(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot);
 
+    @Nullable
     public abstract Pair<Map<ChunkPos, LongOpenHashSet>, LayerManager> getStructurePair(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot);
 
     public abstract void generateBaseStructure(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot);

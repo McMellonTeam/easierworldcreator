@@ -42,6 +42,7 @@ public class EwcFolderData {
             }
 
             MultiChunkFeaturesHandler.cleanEntries(serverWorld);
+            MultiChunkFeaturesHandler.init(serverWorld);
             Ewc.LOGGER.info("finished file initialize and clean");
         });
 
@@ -50,7 +51,7 @@ public class EwcFolderData {
         });
 
         ServerTickEvents.END_WORLD_TICK.register(serverWorld -> {
-            if (tickNumber++ % 1200 == 0) {
+            if (++tickNumber % 2400 == 0) {
                 MultiChunkFeaturesHandler.save(serverWorld);
             }
         });

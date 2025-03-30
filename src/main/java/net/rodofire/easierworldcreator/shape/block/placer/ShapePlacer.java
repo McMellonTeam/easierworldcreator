@@ -137,8 +137,6 @@ public class ShapePlacer {
 
             placeWorldGenFiles();
 
-            MultiChunkFeaturesHandler.add(world, posLit.keySet(), this.featureName);
-
         } else if (placeMoment == PlaceMoment.ANIMATED_OTHER) {
             if (animator == null) {
                 animator = new StructurePlaceAnimator(world, new BlockSorter(BlockSorter.BlockSorterType.RANDOM), StructurePlaceAnimator.AnimatorTime.CONSTANT_TICKS);
@@ -168,8 +166,6 @@ public class ShapePlacer {
             manager.placeJson(world, this.featureName.getNamespace() + "-" + this.featureName.getPath(), chunkPosManager.getOffset());
 
             placeWorldGenFiles();
-
-            MultiChunkFeaturesHandler.add(world, manager.getChunkPos(), this.featureName);
 
         } else if (placeMoment == PlaceMoment.ANIMATED_OTHER) {
             if (animator == null) {

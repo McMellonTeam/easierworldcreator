@@ -8,16 +8,13 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.rodofire.easierworldcreator.Ewc;
-import net.rodofire.easierworldcreator.util.ChunkUtil;
 import net.rodofire.easierworldcreator.util.file.EwcFolderData;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +22,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class MultiChunkFeaturesHandler {
-    private static Map<RegistryKey<World>, Map<Identifier, Set<ChunkPos>>> generated = new HashMap<>();
+    private static final Map<RegistryKey<World>, Map<Identifier, Set<ChunkPos>>> generated = new HashMap<>();
 
     private static final ReentrantLock fileLock = new ReentrantLock();
 
@@ -34,6 +31,7 @@ public class MultiChunkFeaturesHandler {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonObject jsonObject;
 
+        fileLock.lock();
         try {
             if (generatedFeaturesFile.exists()) {
                 try (FileReader reader = new FileReader(generatedFeaturesFile)) {
@@ -107,7 +105,7 @@ public class MultiChunkFeaturesHandler {
             }
             JsonArray chunkArray = new JsonArray();
 
-            for (Map.Entry<Identifier, Set<ChunkPos>> entry : generated.get(world.toServerWorld().getRegistryKey()).entrySet()) {
+            for (Map.Entry<Identifier, Set<ChunkPos>> entry : generated.computeIfAbsent(world.toServerWorld().getRegistryKey(), (o) -> new HashMap<>()).entrySet()) {
                 if (jsonObject.has(entry.getKey().toString())) continue;
                 for (ChunkPos pos : entry.getValue()) {
                     chunkArray.add(pos.x + "," + pos.z);
