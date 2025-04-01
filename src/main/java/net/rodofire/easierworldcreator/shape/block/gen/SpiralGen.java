@@ -1,15 +1,18 @@
 package net.rodofire.easierworldcreator.shape.block.gen;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
 import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
+import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
 import net.rodofire.easierworldcreator.shape.block.rotations.Rotator;
@@ -155,6 +158,29 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class SpiralGen extends AbstractBlockShape {
+    public static final Codec<SpiralGen> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockPos.CODEC.fieldOf("center").forGetter(shape -> LongPosHelper.decodeBlockPos(shape.centerPos)),
+                    Rotator.CODEC.fieldOf("rotator").forGetter(shape -> shape.rotator),
+                    Codec.pair(
+                            Codec.INT,
+                            Codec.INT
+                    ).fieldOf("radius_x").forGetter(shape -> shape.radiusX),
+
+                    Codec.pair(
+                            Codec.INT,
+                            Codec.INT
+                    ).fieldOf("radius_z").forGetter(shape -> shape.radiusZ),
+
+                    Codec.INT.fieldOf("height").forGetter(shape -> shape.height),
+                    Codec.INT.fieldOf("spiral_offset").forGetter(shape -> shape.spiralOffset),
+                    Codec.FLOAT.fieldOf("outline_radius_x").forGetter(shape -> shape.outlineRadiusX),
+                    Codec.FLOAT.fieldOf("outline_radius_z").forGetter(shape -> shape.outlineRadiusZ),
+                    Codec.FLOAT.fieldOf("turn_number").forGetter(shape -> shape.turnNumber),
+                    SpiralType.CODEC.fieldOf("spiral_type").forGetter(shape -> shape.spiralType)
+            ).apply(instance, SpiralGen::new)
+    );
+
     //radius on the x-axis
     private Pair<Integer, Integer> radiusX;
     //radius on the z-axis
@@ -207,6 +233,18 @@ public class SpiralGen extends AbstractBlockShape {
         this.radiusX = new Pair<>(radius, radius);
         this.radiusZ = new Pair<>(radius, radius);
         this.height = height;
+    }
+
+    public SpiralGen(BlockPos pos, Rotator rotator, Pair<Integer, Integer> radiusX, Pair<Integer, Integer> radiusZ, Integer height, Integer spiralOffset, Float outlineRadiusX, Float outlineRadiusZ, Float turnNumber, SpiralType spiralType) {
+        super(pos, rotator);
+        this.radiusX = radiusX;
+        this.radiusZ = radiusZ;
+        this.height = height;
+        this.spiralOffset = spiralOffset;
+        this.outlineRadiusX = outlineRadiusX;
+        this.outlineRadiusZ = outlineRadiusZ;
+        this.turnNumber = turnNumber;
+        this.spiralType = spiralType;
     }
 
     public void setOutlineRadiusZ(int outlineRadiusZ) {
@@ -348,7 +386,7 @@ public class SpiralGen extends AbstractBlockShape {
         /*if (this.turnNumber <= 0) {
             Easierworldcreator.LOGGER.error("param turn can't be <= 0");
         }*/
-        int maxLarge = Math.max(Math.max(radiusX.getLeft(), radiusX.getRight()), Math.max(radiusZ.getLeft(), radiusZ.getRight()));
+        int maxLarge = Math.max(Math.max(radiusX.getFirst(), radiusX.getSecond()), Math.max(radiusZ.getFirst(), radiusZ.getSecond()));
         float f = (this.turnNumber * maxLarge);
         float a = (float) 360 / (height * maxLarge);
         float limit = maxLarge * this.turnNumber * height;
@@ -404,13 +442,13 @@ public class SpiralGen extends AbstractBlockShape {
         /*if (this.turnNumber <= 0) {
             Easierworldcreator.LOGGER.error("param turn can't be <= 0");
         }*/
-        int maxLarge = Math.max(Math.max(radiusX.getLeft(), radiusX.getRight()), Math.max(radiusZ.getLeft(), radiusZ.getRight()));
+        int maxLarge = Math.max(Math.max(radiusX.getFirst(), radiusX.getSecond()), Math.max(radiusZ.getFirst(), radiusZ.getSecond()));
         float f = (this.turnNumber * maxLarge);
         float a = (float) 360 / (height * maxLarge);
         float limit = maxLarge * this.turnNumber * height;
 
 
-        if (rotator == null && this.helicoidAngle.getLeft() < 45 && this.helicoidAngle.getLeft() > -45 && this.helicoidAngle.getRight() < 45 && this.helicoidAngle.getRight() > -45) {
+        if (rotator == null && this.helicoidAngle.getFirst() < 45 && this.helicoidAngle.getFirst() > -45 && this.helicoidAngle.getSecond() < 45 && this.helicoidAngle.getSecond() > -45) {
             for (float i = 0; i < limit; i++) {
                 float ai = a * i + spiralOffset;
 
@@ -507,46 +545,13 @@ public class SpiralGen extends AbstractBlockShape {
 
 
     /**
-     * set every possible spiral shape of the mod
-     */
-    public enum SpiralType {
-        /**
-         * default shape
-         */
-        DEFAULT,
-        /**
-         * helicoid shape, blocks are posed between the center axis and the outline
-         */
-        HELICOID,
-        /**
-         * helicoid shape, blocks are posed between the center of the axis and the outline
-         */
-        HALF_HELICOID,
-        CUSTOM_HELICOID,
-        /**
-         * helicoid shape,this generates helicoid 2 with an opposite direction
-         */
-        DOUBLE_HELICOID,
-        /**
-         * helicoid shape,this generates helicoid 2 with a hole in the middle with an opposite direction
-         */
-        HALF_DOUBLE_HELICOID,
-        CUSTOM_DOUBLE_HELICOID,
-        LARGE_OUTLINE,
-        /**
-         * same as large outline except that it is full on the inside
-         */
-        FULL_LARGE_OUTLINE
-    }
-
-    /**
      * this method returns the {@code xRadius} depending on the height we are at
      *
      * @param percentage the percentage of the height we are at
      * @return the x radius of the spiral
      */
     private float getXRadius(float percentage) {
-        return (int) (radiusX.getLeft() * (1 - percentage) + radiusZ.getRight() * percentage);
+        return (int) (radiusX.getFirst() * (1 - percentage) + radiusZ.getSecond() * percentage);
     }
 
     /**
@@ -556,7 +561,7 @@ public class SpiralGen extends AbstractBlockShape {
      * @return the x radius of the spiral
      */
     private float getZRadius(float percentage) {
-        return (int) (radiusZ.getLeft() * (1 - percentage) + radiusZ.getRight() * percentage);
+        return (int) (radiusZ.getFirst() * (1 - percentage) + radiusZ.getSecond() * percentage);
     }
 
     /**
@@ -566,7 +571,7 @@ public class SpiralGen extends AbstractBlockShape {
      * @return the angle of the spiral
      */
     private int getAngle(float percentage) {
-        return (int) (helicoidAngle.getLeft() * (1 - percentage) + helicoidAngle.getRight() * percentage);
+        return (int) (helicoidAngle.getFirst() * (1 - percentage) + helicoidAngle.getSecond() * percentage);
     }
 
     /**
@@ -578,7 +583,7 @@ public class SpiralGen extends AbstractBlockShape {
         /*if (this.turnNumber <= 0) {
             Easierworldcreator.LOGGER.error("param turn can't be <= 0");
         }*/
-        int maxLarge = Math.max(Math.max(radiusX.getLeft(), radiusX.getRight()), Math.max(radiusZ.getLeft(), radiusZ.getRight()));
+        int maxLarge = Math.max(Math.max(radiusX.getFirst(), radiusX.getSecond()), Math.max(radiusZ.getFirst(), radiusZ.getSecond()));
         float f = (this.turnNumber * maxLarge);
         float a = (float) 360 / (height * maxLarge);
         float limit = maxLarge * this.turnNumber * height;
@@ -635,13 +640,13 @@ public class SpiralGen extends AbstractBlockShape {
         /*if (this.turnNumber <= 0) {
             Easierworldcreator.LOGGER.error("param turn can't be <= 0");
         }*/
-        int maxLarge = Math.max(Math.max(radiusX.getLeft(), radiusX.getRight()), Math.max(radiusZ.getLeft(), radiusZ.getRight()));
+        int maxLarge = Math.max(Math.max(radiusX.getFirst(), radiusX.getSecond()), Math.max(radiusZ.getFirst(), radiusZ.getSecond()));
         float f = (this.turnNumber * maxLarge);
         float a = (float) 360 / (height * maxLarge);
         float limit = maxLarge * this.turnNumber * height;
 
 
-        if (rotator == null && this.helicoidAngle.getLeft() < 45 && this.helicoidAngle.getLeft() > -45 && this.helicoidAngle.getRight() < 45 && this.helicoidAngle.getRight() > -45) {
+        if (rotator == null && this.helicoidAngle.getFirst() < 45 && this.helicoidAngle.getFirst() > -45 && this.helicoidAngle.getSecond() < 45 && this.helicoidAngle.getSecond() > -45) {
             for (float i = 0; i < limit; i++) {
                 float ai = a * i + spiralOffset;
 
@@ -723,4 +728,40 @@ public class SpiralGen extends AbstractBlockShape {
             }
         }
     }
+
+    /**
+     * set every possible spiral shape of the mod
+     */
+    public enum SpiralType {
+        /**
+         * default shape
+         */
+        DEFAULT,
+        /**
+         * helicoid shape, blocks are posed between the center axis and the outline
+         */
+        HELICOID,
+        /**
+         * helicoid shape, blocks are posed between the center of the axis and the outline
+         */
+        HALF_HELICOID,
+        CUSTOM_HELICOID,
+        /**
+         * helicoid shape,this generates helicoid 2 with an opposite direction
+         */
+        DOUBLE_HELICOID,
+        /**
+         * helicoid shape,this generates helicoid 2 with a hole in the middle with an opposite direction
+         */
+        HALF_DOUBLE_HELICOID,
+        CUSTOM_DOUBLE_HELICOID,
+        LARGE_OUTLINE,
+        /**
+         * same as large outline except that it is full on the inside
+         */
+        FULL_LARGE_OUTLINE;
+
+        public static final Codec<SpiralType> CODEC = Codec.STRING.xmap(SpiralType::valueOf, SpiralType::name);
+    }
+
 }

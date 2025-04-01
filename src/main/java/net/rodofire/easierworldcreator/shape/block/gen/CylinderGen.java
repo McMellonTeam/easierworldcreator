@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.shape.block.gen;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -105,6 +107,18 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class CylinderGen extends AbstractFillableBlockShape {
+    public static final Codec<CylinderGen> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockPos.CODEC.fieldOf("center").forGetter(shape -> LongPosHelper.decodeBlockPos(shape.centerPos)),
+                    Rotator.CODEC.fieldOf("rotator").forGetter(shape -> shape.rotator),
+                    Codec.INT.fieldOf("radius_x").forGetter(shape -> shape.radiusX),
+                    Codec.INT.fieldOf("radius_z").forGetter(shape -> shape.radiusZ),
+                    Codec.INT.fieldOf("height").forGetter(shape -> shape.height),
+                    Codec.FLOAT.fieldOf("filling").forGetter(shape -> shape.customFill),
+                    FillingType.CODEC.fieldOf("filling_type").forGetter(shape -> shape.fillingType)
+            ).apply(instance, CylinderGen::new)
+    );
+
     private int radiusX;
     private int radiusZ;
     private int height;
@@ -135,6 +149,15 @@ public class CylinderGen extends AbstractFillableBlockShape {
         super(pos);
         this.radiusX = radius;
         this.radiusZ = radius;
+        this.height = height;
+    }
+
+    public CylinderGen(BlockPos pos, Rotator rotator, Integer radiusX, Integer radiusZ, Integer height, Float customFill, FillingType fillingType) {
+        super(pos, rotator);
+        this.customFill = customFill;
+        this.fillingType = fillingType;
+        this.radiusX = radiusX;
+        this.radiusZ = radiusZ;
         this.height = height;
     }
 
@@ -180,7 +203,7 @@ public class CylinderGen extends AbstractFillableBlockShape {
     @Override
     public Map<ChunkPos, LongOpenHashSet> getShapeCoordinates() {
         this.setFill();
-        if (this.fillingType == Type.EMPTY) this.generateEmptyCylinder();
+        if (this.fillingType == FillingType.EMPTY) this.generateEmptyCylinder();
         else this.generateFullCylinder();
 
         return chunkMap;
@@ -197,7 +220,7 @@ public class CylinderGen extends AbstractFillableBlockShape {
                     (int) (Math.PI * (radiusZ >> 4) * (radiusX >> 4) - Math.PI * (1 - this.customFill * (radiusX >> 4)) * (1 - this.customFill * (radiusZ >> 4)));
         };
         covered = new LongOpenHashSet(estimatedSurface);
-        if (this.fillingType == Type.EMPTY) this.getEmptyNonRotatedCylinder();
+        if (this.fillingType == FillingType.EMPTY) this.getEmptyNonRotatedCylinder();
         else this.generateFullCylinder();
 
         return new LongOpenHashSet();

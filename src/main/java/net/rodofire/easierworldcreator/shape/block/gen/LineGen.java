@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.shape.block.gen;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -8,6 +10,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
 import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
+import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
 import net.rodofire.easierworldcreator.shape.block.rotations.Rotator;
@@ -50,6 +53,14 @@ import java.util.Set;
  */
 @SuppressWarnings("unused")
 public class LineGen extends AbstractBlockShape {
+    public static final Codec<LineGen> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockPos.CODEC.fieldOf("start").forGetter(shape -> LongPosHelper.decodeBlockPos(shape.centerPos)),
+                    Rotator.CODEC.fieldOf("rotator").forGetter(shape -> shape.rotator),
+                    BlockPos.CODEC.fieldOf("end").forGetter(shape -> shape.secondPos)
+            ).apply(instance, LineGen::new)
+    );
+
     private BlockPos secondPos;
 
     /**

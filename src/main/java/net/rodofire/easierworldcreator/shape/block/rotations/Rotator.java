@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.shape.block.rotations;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -8,6 +10,13 @@ import net.rodofire.easierworldcreator.util.LongPosHelper;
 
 @SuppressWarnings("unused")
 public class Rotator {
+    public static final Codec<Rotator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.fieldOf("center").forGetter(rotator -> rotator.centerPos),
+            Codec.INT.fieldOf("y_rotation").forGetter(rotator -> rotator.yRotation),
+            Codec.INT.fieldOf("z_rotation").forGetter(rotator -> rotator.zRotation),
+            Codec.INT.fieldOf("second_y_rotation").forGetter(rotator -> rotator.secondYRotation)
+    ).apply(instance, Rotator::new));
+
     private BlockPos centerPos = new BlockPos(0, 0, 0);
     //These are rotations in degrees (0-360).
     //These 3 are used to represent every rotation possible in a 3d world

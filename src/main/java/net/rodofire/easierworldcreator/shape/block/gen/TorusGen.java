@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.shape.block.gen;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -107,6 +109,22 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class TorusGen extends AbstractFillableBlockShape {
+    public static final Codec<TorusGen> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockPos.CODEC.fieldOf("center").forGetter(shape -> LongPosHelper.decodeBlockPos(shape.centerPos)),
+                    Rotator.CODEC.fieldOf("rotator").forGetter(shape -> shape.rotator),
+                    Codec.INT.fieldOf("inner_radius_x").forGetter(shape -> shape.innerRadiusX),
+                    Codec.INT.fieldOf("inner_radius_z").forGetter(shape -> shape.innerRadiusZ),
+                    Codec.INT.fieldOf("outer_radius_x").forGetter(shape -> shape.outerRadiusX),
+                    Codec.INT.fieldOf("outer_radius_z").forGetter(shape -> shape.outerRadiusZ),
+                    Codec.FLOAT.fieldOf("filling").forGetter(shape -> shape.customFill),
+                    Codec.FLOAT.fieldOf("vertical_torus").forGetter(shape -> shape.verticalTorus),
+                    Codec.FLOAT.fieldOf("horizontal_torus").forGetter(shape -> shape.horizontalTorus),
+                    AbstractFillableBlockShape.FillingType.CODEC.fieldOf("filling_type").forGetter(shape -> shape.fillingType),
+                    TorusType.CODEC.fieldOf("torus_type").forGetter(shape -> shape.torusType)
+            ).apply(instance, TorusGen::new)
+    );
+
     private int innerRadiusX;
     private int outerRadiusX;
     private int innerRadiusZ;
@@ -158,6 +176,18 @@ public class TorusGen extends AbstractFillableBlockShape {
         this.innerRadiusZ = innerRadius;
         this.outerRadiusZ = outerRadius;
         init();
+    }
+
+    public TorusGen(BlockPos pos, Rotator rotator, int innerRadiusX, int innerRadiusZ, int outerRadiusX, int outerRadiusZ, float customFill, float verticalTorus, float horizontalTorus, FillingType fillingType, TorusType torusType) {
+        super(pos, rotator);
+        this.customFill = customFill;
+        this.fillingType = fillingType;
+        this.innerRadiusX = innerRadiusX;
+        this.innerRadiusZ = innerRadiusZ;
+        this.outerRadiusX = outerRadiusX;
+        this.outerRadiusZ = outerRadiusZ;
+        this.verticalTorus = verticalTorus;
+        this.horizontalTorus = horizontalTorus;
     }
 
     private void init() {
@@ -251,7 +281,7 @@ public class TorusGen extends AbstractFillableBlockShape {
     @Override
     public Map<ChunkPos, LongOpenHashSet> getShapeCoordinates() {
         setTorusFill();
-        if (this.fillingType == Type.EMPTY) {
+        if (this.fillingType == FillingType.EMPTY) {
             this.generateEmptyTore();
         } else {
             this.generateFullTore();
@@ -512,6 +542,8 @@ public class TorusGen extends AbstractFillableBlockShape {
         HORIZONTAL_HALF,
         VERTICAL_CUSTOM,
         HORIZONTAL_CUSTOM,
-        CUSTOM
+        CUSTOM;
+
+        public static final Codec<TorusType> CODEC = Codec.STRING.xmap(TorusType::valueOf, TorusType::name);
     }
 }

@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.shape.block.gen;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -9,7 +11,6 @@ import net.rodofire.easierworldcreator.Ewc;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
 import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
-import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
@@ -18,10 +19,7 @@ import net.rodofire.easierworldcreator.util.DirectionUtil;
 import net.rodofire.easierworldcreator.util.LongPosHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /*
 
@@ -89,6 +87,18 @@ import java.util.Set;
  */
 @SuppressWarnings("unused")
 public class SphereGen extends AbstractFillableBlockShape {
+    public static final Codec<SphereGen> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockPos.CODEC.fieldOf("center").forGetter(shape -> LongPosHelper.decodeBlockPos(shape.centerPos)),
+                    Rotator.CODEC.fieldOf("rotator").forGetter(shape -> shape.rotator),
+                    Codec.INT.fieldOf("radius_x").forGetter(shape -> shape.radiusX),
+                    Codec.INT.fieldOf("radius_y").forGetter(shape -> shape.radiusY),
+                    Codec.INT.fieldOf("radius_z").forGetter(shape -> shape.radiusZ),
+                    Codec.FLOAT.fieldOf("filling").forGetter(shape -> shape.customFill),
+                    FillingType.CODEC.fieldOf("filling_type").forGetter(shape -> shape.fillingType)
+            ).apply(instance, SphereGen::new)
+    );
+
     private int radiusX;
     private int radiusY;
     private int radiusZ;
@@ -133,6 +143,15 @@ public class SphereGen extends AbstractFillableBlockShape {
         this.radiusZ = radius;
     }
 
+    public SphereGen(BlockPos pos, Rotator rotator, int radiusX, int radiusY, int radiusZ, float customFill, FillingType fillingType) {
+        super(pos, rotator);
+        this.customFill = customFill;
+        this.fillingType = fillingType;
+        this.radiusX = radiusX;
+        this.radiusY = radiusY;
+        this.radiusZ = radiusZ;
+    }
+
     /**
      * Sets the direction of the half-sphere. * * @param direction The direction to set.
      */
@@ -173,7 +192,7 @@ public class SphereGen extends AbstractFillableBlockShape {
     @Override
     public Map<ChunkPos, LongOpenHashSet> getShapeCoordinates() {
         //verify if the rotations == 0 to avoid some unnecessary calculations
-        if (this.fillingType == Type.EMPTY) {
+        if (this.fillingType == FillingType.EMPTY) {
             if (this.halfSphere == SphereType.HALF) {
                 this.generateHalfEmptyEllipsoid();
             } else {

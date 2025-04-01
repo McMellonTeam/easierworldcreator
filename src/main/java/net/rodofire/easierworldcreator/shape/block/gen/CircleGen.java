@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.shape.block.gen;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -68,6 +70,17 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class CircleGen extends AbstractFillableBlockShape {
+    public static final Codec<CircleGen> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockPos.CODEC.fieldOf("center").forGetter(shape -> LongPosHelper.decodeBlockPos(shape.centerPos)),
+                    Rotator.CODEC.fieldOf("rotator").forGetter(shape -> shape.rotator),
+                    Codec.INT.fieldOf("radius_x").forGetter(shape -> shape.radiusX),
+                    Codec.INT.fieldOf("radius_z").forGetter(shape -> shape.radiusZ),
+                    Codec.FLOAT.fieldOf("filling").forGetter(shape -> shape.customFill),
+                    FillingType.CODEC.fieldOf("filling_type").forGetter(shape -> shape.fillingType)
+            ).apply(instance, CircleGen::new)
+    );
+
     private int radiusX;
     private int radiusZ;
 
@@ -97,6 +110,14 @@ public class CircleGen extends AbstractFillableBlockShape {
         this.radiusZ = radius;
     }
 
+    public CircleGen(BlockPos pos, Rotator rotator, int radiusX, int radiusZ, float customFill, FillingType fillingType) {
+        super(pos, rotator);
+        this.customFill = customFill;
+        this.fillingType = fillingType;
+        this.radiusX = radiusX;
+        this.radiusZ = radiusZ;
+    }
+
 
     /*---------- Radius Related ----------*/
 
@@ -119,6 +140,7 @@ public class CircleGen extends AbstractFillableBlockShape {
     }
 
     /*---------- Place Structure ----------*/
+
     /**
      * method to get all the pos of the circle
      *
@@ -128,7 +150,7 @@ public class CircleGen extends AbstractFillableBlockShape {
     public Map<ChunkPos, LongOpenHashSet> getShapeCoordinates() {
         initFilling();
 
-        if (this.fillingType == AbstractFillableBlockShape.Type.EMPTY) {
+        if (this.fillingType == FillingType.EMPTY) {
             this.generateEmptyOval();
         } else {
             this.generateFullOval();
@@ -147,7 +169,7 @@ public class CircleGen extends AbstractFillableBlockShape {
         covered = new LongOpenHashSet(estimatedSurface);
         initFilling();
 
-        if (this.fillingType == AbstractFillableBlockShape.Type.EMPTY) {
+        if (this.fillingType == FillingType.EMPTY) {
             this.getCoveredEmptyOval();
         } else {
             this.getCoveredFullOval();
@@ -163,7 +185,7 @@ public class CircleGen extends AbstractFillableBlockShape {
     }
 
     private void initFilling() {
-        if (this.fillingType == Type.HALF) {
+        if (this.fillingType == FillingType.HALF) {
             this.setCustomFill(0.5f);
         }
         if (this.customFill > 1f) this.setCustomFill(1f);

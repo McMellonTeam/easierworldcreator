@@ -1,5 +1,6 @@
 package net.rodofire.easierworldcreator.shape.block.instanciator;
 
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.util.math.BlockPos;
 import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManager;
@@ -53,7 +54,7 @@ public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
     /**
      * set the default filling type
      */
-    protected AbstractFillableBlockShape.Type fillingType = AbstractFillableBlockShape.Type.FULL;
+    protected FillingType fillingType = FillingType.FULL;
 
 
 
@@ -79,7 +80,7 @@ public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
     /**
      * change how the structure is filled
      */
-    public enum Type {
+    public enum FillingType {
         /**
          * will only generate the outline
          */
@@ -95,7 +96,9 @@ public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
         /**
          * Set custom filling type. It must be associated with a customFill float.
          */
-        CUSTOM
+        CUSTOM;
+
+        public static final Codec<FillingType> CODEC = Codec.STRING.xmap(FillingType::valueOf, FillingType::name);
     }
 
     /*----------- FillingType Related -----------*/
@@ -105,7 +108,7 @@ public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
      *
      * @param fillingType change the fillingType
      */
-    public void setFillingType(AbstractFillableBlockShape.Type fillingType) {
+    public void setFillingType(FillingType fillingType) {
         this.fillingType = fillingType;
     }
 
@@ -123,8 +126,8 @@ public abstract class AbstractFillableBlockShape extends AbstractBlockShape {
      * set the filling value depending on the filling type
      */
     protected void setFill() {
-        if (this.fillingType == AbstractFillableBlockShape.Type.HALF) this.customFill = 0.5f;
-        if (this.fillingType == AbstractFillableBlockShape.Type.FULL) this.customFill = 1.0f;
+        if (this.fillingType == FillingType.HALF) this.customFill = 0.5f;
+        if (this.fillingType == FillingType.FULL) this.customFill = 1.0f;
 
         if (this.customFill > 1f) this.customFill = 1f;
         if (this.customFill < 0f) this.customFill = 0f;
