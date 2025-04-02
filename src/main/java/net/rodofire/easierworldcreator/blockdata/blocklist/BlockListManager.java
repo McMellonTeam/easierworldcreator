@@ -16,6 +16,7 @@ import net.rodofire.easierworldcreator.blockdata.StructurePlacementRuleManager;
 import net.rodofire.easierworldcreator.blockdata.sorter.BlockSorter;
 import net.rodofire.easierworldcreator.util.LongPosHelper;
 import net.rodofire.easierworldcreator.util.file.EwcFolderData;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -129,7 +130,7 @@ public class BlockListManager {
         return stateIndexes.size();
     }
 
-    public BlockListManager put(BlockState state, NbtCompound tag, LongArrayList pos){
+    public BlockListManager put(BlockState state, NbtCompound tag, LongArrayList pos) {
         return put(state, tag, pos, null);
     }
 
@@ -146,7 +147,7 @@ public class BlockListManager {
         if (this.blockDataMap.containsKey(blockData)) {
             short index = this.blockDataMap.getShort(blockData);
             this.blockLists.get(index).addAllPos(pos);
-            if(ruler != null) {
+            if (ruler != null) {
                 this.blockLists.get(index).setRuler(ruler);
             }
             return this;
@@ -324,7 +325,9 @@ public class BlockListManager {
     public JsonArray toJson(ChunkPos chunkPos, ChunkPos offset) {
         JsonArray jsonArray = new JsonArray();
 
-        ForkJoinPool pool = new ForkJoinPool(Math.min(blockLists.size(), Runtime.getRuntime().availableProcessors() / 2));
+        if (blockLists.isEmpty()) return new JsonArray();
+
+        ForkJoinPool pool = new ForkJoinPool(Math.max(1, Math.min(blockLists.size(), Runtime.getRuntime().availableProcessors() / 2)));
         List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
 
         // Création des CompletableFutures pour chaque BlockList
@@ -362,6 +365,8 @@ public class BlockListManager {
         chunkPos = new ChunkPos(chunkPos.x + offset.x, chunkPos.z + offset.z);
         Path path = EwcFolderData.getNVerifyDataDir(worldAccess, chunkPos);
         JsonArray jsonArray = toJson(chunkPos, offset);
+        if (jsonArray.isEmpty()) return;
+
         try {
             Files.writeString(path.resolve(name + ".json"), gson.toJson(jsonArray));
         } catch (IOException e) {

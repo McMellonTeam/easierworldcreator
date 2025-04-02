@@ -1,6 +1,7 @@
 package net.rodofire.easierworldcreator.blockdata.blocklist;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +29,7 @@ public class DividedBlockListManager {
     }
 
     public DividedBlockListManager put(DividedBlockListManager manager) {
-        for(Map.Entry<ChunkPos, BlockListManager> entry : manager.managers.entrySet()) {
+        for (Map.Entry<ChunkPos, BlockListManager> entry : manager.managers.entrySet()) {
             putWithoutVerification(entry.getKey(), entry.getValue());
         }
         return this;
@@ -70,7 +71,7 @@ public class DividedBlockListManager {
      * ! However, in the case where some {@code BlockPos} are not in the provided {@code ChunkPos} but in another place,
      * it might result in a crash or create unwanted behavior.
      *
-     * @param pos        the chunkPos where the BlockPos are.
+     * @param pos     the chunkPos where the BlockPos are.
      * @param manager the manager related to the chunkPos that will be put
      * @return the resulted manager.
      */
@@ -205,6 +206,22 @@ public class DividedBlockListManager {
 
     public DividedBlockListManager put(BlockState state, NbtCompound tag, BlockPos pos, StructurePlacementRuleManager ruler) {
         return put(state, tag, LongPosHelper.encodeBlockPos(pos), ruler);
+    }
+
+    public DividedBlockListManager put(BlockState state,  Map<ChunkPos, LongOpenHashSet> posMap, StructurePlacementRuleManager ruler) {
+        return put(state, null, posMap, ruler);
+    }
+    public DividedBlockListManager put(BlockState state, NbtCompound tag, Map<ChunkPos, LongOpenHashSet> posMap) {
+        return put(state, tag, posMap, null);
+    }
+    public DividedBlockListManager put(BlockState state,  Map<ChunkPos, LongOpenHashSet> posMap) {
+        return put(state, null, posMap, null);
+    }
+    public DividedBlockListManager put(BlockState state, NbtCompound tag, Map<ChunkPos, LongOpenHashSet> posMap, StructurePlacementRuleManager ruler) {
+        posMap.forEach((chunkPos, longSet) -> {
+            managers.computeIfAbsent(chunkPos, (o) -> new BlockListManager()).put(state, tag, new LongArrayList(longSet), ruler);
+        });
+        return this;
     }
 
     /**
