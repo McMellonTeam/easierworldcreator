@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.blockdata;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.tag.TagKey;
@@ -9,6 +11,7 @@ import net.rodofire.easierworldcreator.tag.TagUtil;
 import net.rodofire.easierworldcreator.util.LongPosHelper;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,11 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("unused")
 public class StructurePlacementRuleManager {
+    public static final Codec<StructurePlacementRuleManager> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+            Codec.BOOL.fieldOf("force").forGetter(ruler -> ruler.force),
+            Codec.list(Block.CODEC.codec()).fieldOf("overridens_blocks").forGetter(ruler -> ruler.overriddenBlocks.stream().toList())
+    ).apply(instance, StructurePlacementRuleManager::new));
+
     /**
      * Define if the blocks can be forced. Ex: determine if it can replace a stone block. If true, the stone block will be replaced, else not.
      */
@@ -58,6 +66,11 @@ public class StructurePlacementRuleManager {
         this.force = force;
         this.overriddenBlocks = new HashSet<>(overriddenBlocks);
         addTagKeys(overriddenTags);
+    }
+
+    public StructurePlacementRuleManager(Boolean aBoolean, List<Block> blocks) {
+        this.force = aBoolean;
+        this.overriddenBlocks = new HashSet<>(blocks);
     }
 
     public Set<Block> getOverriddenBlocks() {

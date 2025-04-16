@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.blockdata;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +12,13 @@ import java.util.Objects;
  * class to store objects that represents a block
  */
 public class BlockDataKey {
+    public static final Codec<BlockDataKey> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockState.CODEC.fieldOf("state").forGetter(blockDataKey -> blockDataKey.state),
+                    NbtCompound.CODEC.fieldOf("tag").forGetter(blockDataKey -> blockDataKey.tag)
+            ).apply(instance, instance.stable(BlockDataKey::new))
+    );
+
     private BlockState state;
     private NbtCompound tag;
 
@@ -21,6 +30,7 @@ public class BlockDataKey {
         this.state = state;
         this.tag = tag;
     }
+
     public BlockState getState() {
         return state;
     }

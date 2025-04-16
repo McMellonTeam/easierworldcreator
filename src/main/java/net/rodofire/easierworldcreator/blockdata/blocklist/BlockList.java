@@ -3,6 +3,8 @@ package net.rodofire.easierworldcreator.blockdata.blocklist;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -47,6 +49,14 @@ import static net.rodofire.easierworldcreator.util.file.EwcFolderData.getNVerify
  */
 @SuppressWarnings("unused")
 public class BlockList {
+    public static final Codec<BlockList> CODEC = RecordCodecBuilder.create((instance) ->
+            instance.group(
+                    BlockDataKey.CODEC.fieldOf("block_data").forGetter(blockList -> blockList.dataKey),
+                    StructurePlacementRuleManager.CODEC.fieldOf("ruler").forGetter(blockList -> blockList.ruler),
+                    Codec.list(Codec.LONG).fieldOf("positions").forGetter(blockList -> blockList.posList.longParallelStream().boxed().toList())
+            ).apply(instance, BlockList::new)
+    );
+
     StructurePlacementRuleManager ruler = new StructurePlacementRuleManager();
 
     /**
@@ -147,6 +157,12 @@ public class BlockList {
 
     public BlockList() {
         this(Blocks.REDSTONE_BLOCK.getDefaultState(), null, List.of());
+    }
+
+    public BlockList(BlockDataKey blockDataKey, StructurePlacementRuleManager ruleManager, List<Long> longs) {
+        this.dataKey = blockDataKey;
+        this.ruler = ruleManager;
+        this.posList.addAll(new LongArrayList(longs));
     }
 
     public int size() {
@@ -492,7 +508,7 @@ public class BlockList {
         chunkPos = new ChunkPos(chunkPos.x + offset.x, chunkPos.z + offset.z);
         Path path = getNVerifyDataDir(world, chunkPos);
         JsonObject jsonObj = toJson(offset, chunkPos);
-        if(path == null)
+        if (path == null)
             return;
         try {
             Files.writeString(path, gson.toJson(jsonObj));

@@ -3,6 +3,8 @@ package net.rodofire.easierworldcreator.blockdata.blocklist;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import net.minecraft.block.BlockState;
@@ -30,6 +32,10 @@ import java.util.concurrent.*;
  */
 @SuppressWarnings("unused")
 public class BlockListManager {
+    public static final Codec<BlockListManager> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+            Codec.list(BlockList.CODEC).fieldOf("block_lists").forGetter(manager -> manager.blockLists)
+    ).apply(instance, BlockListManager::new));
+
     /**
      * the List of BlockList that are managed
      */

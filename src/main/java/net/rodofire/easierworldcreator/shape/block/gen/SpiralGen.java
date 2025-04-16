@@ -12,7 +12,6 @@ import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManag
 import net.rodofire.easierworldcreator.blockdata.layer.BlockLayerManager;
 import net.rodofire.easierworldcreator.maths.FastMaths;
 import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractBlockShape;
-import net.rodofire.easierworldcreator.shape.block.instanciator.AbstractFillableBlockShape;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
 import net.rodofire.easierworldcreator.shape.block.rotations.Rotator;

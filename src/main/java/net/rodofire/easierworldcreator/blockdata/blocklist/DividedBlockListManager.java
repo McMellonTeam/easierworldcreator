@@ -1,5 +1,7 @@
 package net.rodofire.easierworldcreator.blockdata.blocklist;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.BlockState;
@@ -23,9 +25,17 @@ import java.util.Set;
  * Use this class if you will place a structure during world gen.
  */
 public class DividedBlockListManager {
+    public static final Codec<DividedBlockListManager> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+            Codec.list(BlockListManager.CODEC).fieldOf("block_list_managers").forGetter(manager -> manager.managers.values().stream().toList())
+    ).apply(instance, DividedBlockListManager::new));
+
     private final Map<ChunkPos, BlockListManager> managers = new HashMap<>();
 
     public DividedBlockListManager() {
+    }
+
+    public DividedBlockListManager(List<BlockListManager> managers) {
+
     }
 
     public DividedBlockListManager put(DividedBlockListManager manager) {
@@ -208,15 +218,18 @@ public class DividedBlockListManager {
         return put(state, tag, LongPosHelper.encodeBlockPos(pos), ruler);
     }
 
-    public DividedBlockListManager put(BlockState state,  Map<ChunkPos, LongOpenHashSet> posMap, StructurePlacementRuleManager ruler) {
+    public DividedBlockListManager put(BlockState state, Map<ChunkPos, LongOpenHashSet> posMap, StructurePlacementRuleManager ruler) {
         return put(state, null, posMap, ruler);
     }
+
     public DividedBlockListManager put(BlockState state, NbtCompound tag, Map<ChunkPos, LongOpenHashSet> posMap) {
         return put(state, tag, posMap, null);
     }
-    public DividedBlockListManager put(BlockState state,  Map<ChunkPos, LongOpenHashSet> posMap) {
+
+    public DividedBlockListManager put(BlockState state, Map<ChunkPos, LongOpenHashSet> posMap) {
         return put(state, null, posMap, null);
     }
+
     public DividedBlockListManager put(BlockState state, NbtCompound tag, Map<ChunkPos, LongOpenHashSet> posMap, StructurePlacementRuleManager ruler) {
         posMap.forEach((chunkPos, longSet) -> {
             managers.computeIfAbsent(chunkPos, (o) -> new BlockListManager()).put(state, tag, new LongArrayList(longSet), ruler);
