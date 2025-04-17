@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * class to store objects that represents a block
@@ -14,9 +15,9 @@ import java.util.Objects;
 public class BlockDataKey {
     public static final Codec<BlockDataKey> CODEC = RecordCodecBuilder.create((instance) ->
             instance.group(
-                    BlockState.CODEC.fieldOf("state").forGetter(blockDataKey -> blockDataKey.state),
-                    NbtCompound.CODEC.fieldOf("tag").forGetter(blockDataKey -> blockDataKey.tag)
-            ).apply(instance, instance.stable(BlockDataKey::new))
+                    BlockState.CODEC.fieldOf("state").forGetter(bdk -> bdk.state),
+                    NbtCompound.CODEC.optionalFieldOf("tag").forGetter(bdk -> Optional.ofNullable(bdk.tag))
+            ).apply(instance, (state, tagOpt) -> new BlockDataKey(state, tagOpt.orElse(null)))
     );
 
     private BlockState state;

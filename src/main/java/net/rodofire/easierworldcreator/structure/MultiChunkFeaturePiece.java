@@ -1,7 +1,12 @@
 package net.rodofire.easierworldcreator.structure;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePieceType;
@@ -18,6 +23,7 @@ import net.rodofire.easierworldcreator.blockdata.blocklist.DividedBlockListManag
 import net.rodofire.easierworldcreator.shape.block.MultiChunkFeaturesHandler;
 import net.rodofire.easierworldcreator.shape.block.layer.LayerManager;
 import net.rodofire.easierworldcreator.shape.block.placer.ShapePlacer;
+import net.rodofire.easierworldcreator.structure.config.StructureGeneratorConfig;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -42,6 +48,18 @@ public abstract class MultiChunkFeaturePiece extends StructurePiece {
                 .mapToLong(ChunkPos::toLong)
                 .toArray()
         );
+    }
+
+    protected <T extends StructureGeneratorConfig<T>> void writeGeneratorConfigCodec(NbtCompound nbt, Codec<T> codec, T config) {
+        DynamicOps<NbtElement> ops = NbtOps.INSTANCE;
+        DataResult<NbtElement> encoded = codec.encode(config, ops, ops.empty());
+        encoded.result().ifPresent(element -> nbt.put("config", element));
+    }
+
+    protected <T extends StructureGeneratorConfig<T>> T getGeneratorConfig(NbtCompound nbt, Codec<T> codec) {
+        return codec.parse(NbtOps.INSTANCE, nbt.get("config"))
+                .result()
+                .orElseThrow(() -> new IllegalStateException("Failed to decode config"));
     }
 
     public MultiChunkFeaturePiece(StructurePieceType pieceType, NbtCompound nbtCompound) {
