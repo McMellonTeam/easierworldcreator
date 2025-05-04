@@ -1,0 +1,107 @@
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+    id "me.modmuss50.mod-publish-plugin" version "0.8.1"
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    modApi "com.terraformersmc:modmenu:11.0.1"
+}
+
+loom {
+    def aw = project(':common').file("src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('runs/client')
+        }
+        server {
+            server()
+            setConfigName('Fabric Server')
+            ideConfigGenerated(true)
+            runDir('runs/server')
+        }
+    }
+}
+
+
+version = project.mod_version
+
+base {
+    archivesName = project.mod_id
+}
+
+repositories {
+    maven { url "https://maven.terraformersmc.com/releases/" }
+    mavenCentral()
+}
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+            exclude(['src/main/generated/**'])
+        }
+    }
+}
+
+tasks.test {
+    enabled = false
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+publishMods {
+    file = remapJar.archiveFile
+    additionalFiles.from(remapSourcesJar.archiveFile, javadocJar.archiveFile)
+
+    changelog = file("../changelog.md").text
+    type = STABLE
+    modLoaders.add("fabric")
+    modLoaders.add("quilt")
+
+    displayName = "ewc-fabric ${project.mod_version}"
+
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
+        projectId = "1069458"
+        minecraftVersions.add("1.21.1")
+        javaVersions.add(JavaVersion.VERSION_21)
+        serverRequired = true
+        requires("fabric-api")
+        changelogType = "markdown"
+    }
+
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_API_KEY")
+        projectId = "Ut6vTr1q"
+        minecraftVersions.add("1.21.1")
+        requires("fabric-api")
+    }
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_API_KEY")
+        repository = "McMellonTeam/easierworldcreator"
+        commitish = "1.21.1"
+    }
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "id": "ewc",
+  "version": "3.1.0",
+  "name": "Easier-World-Creator",
+  "description": "World-gen library mod",
+  "authors": [
+    "RodoFire"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/ewc",
+    "sources": "https://github.com/RodoFire/easierworldcreator",
+    "issues": "https://github.com/RodoFire/easierworldcreator/issues"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "server": [
+      "fr.rodofire.ewc.Ewc"
+    ],
+    "client": [
+      "fr.rodofire.ewc.EwcClient"
+    ],
+    "modmenu": [
+      "fr.rodofire.ewc.config.client.ModMenuConfigScreen"
+    ]
+  },
+  "mixins": [
+    "ewc.mixins.json",
+    "ewc.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "minecraft": "1.21.1",
+    "java": ">=21"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "discord": "https://discord.gg/2FceKShYcy"
+      },
+      "update_checker": true
+    }
+  },
+  "accessWidener": "ewc.accesswidener"
+}
+  

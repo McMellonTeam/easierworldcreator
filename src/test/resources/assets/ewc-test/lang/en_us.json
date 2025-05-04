@@ -1,5 +1,0 @@
-{
-  "config.ewc-test.foo" : "Foo",
-  "config.ewc-test.bool1test" : "Hello Bool1Test",
-  "config.ewc-test.bool1test.description" : "This is the Bool1Test description"
-}

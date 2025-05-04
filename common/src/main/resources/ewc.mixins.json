@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "fr.rodofire.ewc.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_18",
+  "mixins": [
+    "world.gen.ChunkGeneratorMixin",
+    "world.gen.ChunkRegionMixin",
+    "world.gen.surfacebuilder.ConditionSourceMixin",
+    "world.gen.surfacebuilder.SurfaceRulesMixin",
+    "world.structure.PalettedBlockInfoListMixin",
+    "world.structure.StructureTemplateManagerInvoker",
+    "world.structure.StructureTemplateMixin"
+  ],
+  "client": [
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+
