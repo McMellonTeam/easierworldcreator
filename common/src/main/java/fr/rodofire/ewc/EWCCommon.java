@@ -6,7 +6,6 @@ import fr.rodofire.ewc.config.ewc.EwcConfig;
 import fr.rodofire.ewc.maths.FastMaths;
 import fr.rodofire.ewc.util.file.EwcFolderData;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
 
 public class EWCCommon {
     static boolean serverInit = false;
@@ -16,19 +15,19 @@ public class EWCCommon {
             return;
 
         serverInit = true;
-        LOGGER.info("[EWC] Initializing :");
+        EwcConstants.LOGGER.info("[EWC] Initializing :");
         EwcConfig.setConfig();
         FastMaths.registerMaths();
         EwcFolderData.initFiles();
         ModCommands.registerCommands();
 
-        LOGGER.info("[EWC] Started!");
+        EwcConstants.LOGGER.info("[EWC] Started!");
     }
 
     public static void initClient() {
-        LOGGER.info("[EWC] Initializing Client:");
+        EwcConstants.LOGGER.info("[EWC] Initializing Client:");
         initServer();
         EwcClientConfig.init();
-        LOGGER.info("[EWC] Started Client!");
+        EwcConstants.LOGGER.info("[EWC] Started Client!");
     }
 }
