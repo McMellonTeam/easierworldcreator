@@ -2,9 +2,10 @@ package fr.rodofire.ewc.blockdata;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.rodofire.ewc.tag.TagUtil;
+import fr.rodofire.ewc.util.TagUtil;
 import fr.rodofire.ewc.util.LongPosHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -82,7 +83,7 @@ public class StructurePlacementRuleManager {
     }
 
     public void setOverriddenTags(Set<TagKey<Block>> overriddenTags) {
-        this.overriddenBlocks = TagUtil.BlockTags.convertBlockTagToBlockSet(overriddenTags);
+        this.overriddenBlocks = TagUtil.convertTag2Set(BuiltInRegistries.BLOCK, overriddenTags);
     }
 
     public void addOverrideBlock(Block block) {
@@ -90,7 +91,7 @@ public class StructurePlacementRuleManager {
     }
 
     public void addTagKey(TagKey<Block> tagKey) {
-        this.overriddenBlocks.addAll(TagUtil.BlockTags.convertBlockTagToBlockSet(tagKey));
+        this.overriddenBlocks.addAll(TagUtil.convertTag2Set(BuiltInRegistries.BLOCK, tagKey));
     }
 
     public void addOverrideBlocks(Set<Block> overriddenBlocks) {
@@ -98,7 +99,7 @@ public class StructurePlacementRuleManager {
     }
 
     public void addTagKeys(Set<TagKey<Block>> tagKeys) {
-        this.overriddenBlocks.addAll(TagUtil.BlockTags.convertBlockTagToBlockSet(tagKeys));
+        this.overriddenBlocks.addAll(TagUtil.convertTag2Set(BuiltInRegistries.BLOCK, tagKeys));
     }
 
     public boolean isForce() {
@@ -121,6 +122,7 @@ public class StructurePlacementRuleManager {
 
     /**
      * method to know if a {@link BlockState} is allowed to be replaced
+     *
      * @param state the state that will be tested
      * @return true if it is possible, false else
      */

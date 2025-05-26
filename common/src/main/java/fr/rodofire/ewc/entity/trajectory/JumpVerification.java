@@ -1,10 +1,11 @@
 package fr.rodofire.ewc.entity.trajectory;
 
 import fr.rodofire.ewc.entity.EntityUtil;
-import fr.rodofire.ewc.tag.TagUtil;
+import fr.rodofire.ewc.util.TagUtil;
 import fr.rodofire.ewc.util.WorldGenUtil;
 import jdk.jfr.Experimental;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -44,7 +45,7 @@ public class JumpVerification {
         this.endPos = endPos;
         this.initial = initial;
         this.totalTime = totalTick;
-        this.allowed = TagUtil.BlockTags.convertBlockTagToBlockSet(allowed);
+        this.allowed = TagUtil.convertTag2Set(BuiltInRegistries.BLOCK, allowed);
     }
 
     public JumpVerification(Entity entity, BlockPos endPos, Vec3 initial, int totalTick, List<TagKey<Block>> allowed, Set<BlockPos> passing, Set<BlockPos> verified) {
@@ -52,7 +53,7 @@ public class JumpVerification {
         this.endPos = endPos;
         this.initial = initial;
         this.totalTime = totalTick;
-        this.allowed = TagUtil.BlockTags.convertBlockTagToBlockSet(allowed);
+        this.allowed = TagUtil.convertTag2Set(BuiltInRegistries.BLOCK, allowed);
         this.passing = new HashSet<>(passing);
         this.verified = new HashSet<>(verified);
 
@@ -76,7 +77,7 @@ public class JumpVerification {
             // linear interpolation
             currentPos = currentPos.add(velocity.scale((double) 1 / 30));
 
-            if(WorldGenUtil.getDistance(currentPos, startPos.getCenter()) < 1)
+            if (WorldGenUtil.getDistance(currentPos, startPos.getCenter()) < 1)
                 continue;
 
             // verifying the blocks that the entity Box is occupying
@@ -103,6 +104,7 @@ public class JumpVerification {
 
     /**
      * determine which blocks are occupied by the entity
+     *
      * @param pos the position of the entity
      */
     private Set<BlockPos> getOccupiedBlocks(Vec3 pos) {

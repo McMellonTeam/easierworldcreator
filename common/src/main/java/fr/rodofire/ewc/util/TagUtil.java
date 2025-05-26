@@ -1,21 +1,64 @@
-package fr.rodofire.ewc.tag;
+package fr.rodofire.ewc.util;
 
 
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * Util class related to tags
  */
 @SuppressWarnings("unused")
 public class TagUtil {
+
+    @SafeVarargs
+    public static <T> Set<T> convertTag2Set(Registry<T> registry, TagKey<T>... tag) {
+        Set<T> set = new HashSet<>();
+        for (TagKey<T> tagKey : tag) {
+            registry.getTagOrEmpty(tagKey).forEach(tHolder -> set.add(tHolder.value()));
+        }
+        return set;
+    }
+
+    public static <T> Set<T> convertTag2Set(Registry<T> registry, Collection<TagKey<T>> tag) {
+        Set<T> set = new HashSet<>();
+        for (TagKey<T> tagKey : tag) {
+            registry.getTagOrEmpty(tagKey).forEach(tHolder -> set.add(tHolder.value()));
+        }
+        return set;
+    }
+
+    @SafeVarargs
+    public static <T> T[] convertTag2Array(Class<T> clazz, Registry<T> registry, TagKey<T>... tags) {
+        Set<T> set = new HashSet<>();
+        for (TagKey<T> tagKey : tags) {
+            registry.getTagOrEmpty(tagKey).forEach(tHolder -> set.add(tHolder.value()));
+        }
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) Array.newInstance(clazz, set.size());
+        return set.toArray(array);
+    }
+
+    public static <T> T[] convertTag2Array(Class<T> clazz, Registry<T> registry, TagKey<T> tags) {
+        return convertTag2Array(clazz, registry, List.of(tags));
+    }
+
+    public static <T> T[] convertTag2Array(Class<T> clazz, Registry<T> registry, Collection<TagKey<T>> tags) {
+        Set<T> set = new HashSet<>();
+        for (TagKey<T> tagKey : tags) {
+            registry.getTagOrEmpty(tagKey).forEach(tHolder -> set.add(tHolder.value()));
+        }
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) Array.newInstance(clazz, set.size());
+        return set.toArray(array);
+    }
+
+    @Deprecated(forRemoval = true)
     public static class BlockTags {
         public static Set<Block> convertBlockTagToBlockSet(TagKey<Block> blockTag) {
             Set<Block> blocks = new HashSet<>();
@@ -66,6 +109,7 @@ public class TagUtil {
         }
     }
 
+    @Deprecated(forRemoval = true)
     public static class ItemTags {
         public static Set<Item> convertItemTagToItemSet(TagKey<Item> blockTag) {
             Set<Item> items = new HashSet<>();
